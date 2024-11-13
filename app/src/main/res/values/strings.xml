@@ -16,4 +16,16 @@
     <string name="des_techno_logo">Techno\'s Logo</string>
     <string name="txt_register_now">Đăng ký ngay</string>
     <string name="desc_login_with_fingerprint">Đăng nhập với vân tay</string>
+    <string name="txt_privacy_and_requirement_1">Tôi đông ý</string>
+    <string name="txt_privacy_and_requirement_2">và</string>
+    <string name="txt_privacy">chính sách bảo mật</string>
+    <string name="txt_requirement">điều khoản</string>
+    <string name="txt_have_account">Đã có tài khoản?</string>
+    <string name="txt_first_name">Tên</string>
+    <string name="txt_last_name">Họ</string>
+    <string name="txt_to_login">Đăng nhập</string>
+    <string name="txt_gender_male">Nam</string>
+    <string name="txt_gender_female">Nữ</string>
+    <string name="txt_gender_other">Khác</string>
+    <string name="txt_gender">Giới tính</string>
 </resources>

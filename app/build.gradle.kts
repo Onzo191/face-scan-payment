@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.rxandroid)
     implementation(libs.biometric)
     implementation(libs.security.crypto)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

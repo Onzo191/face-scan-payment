@@ -14,6 +14,7 @@ playServicesAuth = "21.2.0"
 rxandroid = "3.0.2"
 biometric = "1.1.0"
 securityCrypto = "1.1.0-alpha06"
+firebaseFirestore = "25.1.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -30,6 +31,7 @@ play-services-auth = { group = "com.google.android.gms", name = "play-services-a
 rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
 biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -5,14 +5,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
+
 import com.ec337.facescanpayment.MainActivity;
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.credential.AuthenticationManager;
 import com.ec337.facescanpayment.core.utils.BiometricHelper;
+import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.core.utils.UIManager;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -47,6 +51,8 @@ public class LoginPage extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.btn_login);
         loginButton.setOnClickListener(v -> handleLogin());
+        TextView toRegister = findViewById(R.id.btn_to_register);
+        toRegister.setOnClickListener(v -> NavigationUtils.navigateTo(LoginPage.this, RegisterPage.class));
     }
 
     @Override
@@ -54,7 +60,7 @@ public class LoginPage extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = authManager.getCurrentUser();
         if (currentUser != null) {
-            navigateToMainActivity();
+            NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
         }
 
         if (authManager.retrieveCredentials() != null) {
@@ -73,7 +79,7 @@ public class LoginPage extends AppCompatActivity {
                 @Override
                 public void onSuccess(FirebaseUser user) {
                     Toast.makeText(LoginPage.this, "Login succeeded!", Toast.LENGTH_SHORT).show();
-                    navigateToMainActivity();
+                    NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
                 }
 
                 @Override
@@ -94,7 +100,7 @@ public class LoginPage extends AppCompatActivity {
                 @Override
                 public void onSuccess(FirebaseUser user) {
                     Toast.makeText(LoginPage.this, "Biometric login succeeded!", Toast.LENGTH_SHORT).show();
-                    navigateToMainActivity();
+                    NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
                 }
 
                 @Override
@@ -105,10 +111,5 @@ public class LoginPage extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No saved credentials found", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void navigateToMainActivity() {
-        startActivity(new Intent(LoginPage.this, MainActivity.class));
-        finish();
     }
 }
