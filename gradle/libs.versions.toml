@@ -15,6 +15,11 @@ rxandroid = "3.0.2"
 biometric = "1.1.0"
 securityCrypto = "1.1.0-alpha06"
 firebaseFirestore = "25.1.1"
+cameraCore = "1.4.0"
+cameraCamera2 = "1.4.0"
+cameraLifecycle = "1.4.0"
+cameraView = "1.4.0"
+faceDetection = "16.1.7"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -32,6 +37,11 @@ rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroi
 biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraCamera2" }
+camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
+camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+face-detection = { group = "com.google.mlkit", name = "face-detection", version.ref = "faceDetection" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

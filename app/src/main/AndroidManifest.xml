@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <uses-feature android:name="android.hardware.camera.front" android:required="true"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
@@ -16,6 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FaceScanPayment"
         tools:targetApi="31">
+        <activity
+            android:name=".features.auth.presentation.FaceDetectionPage"
+            android:exported="false" />
+        <activity
+            android:name=".features.auth.presentation.FaceRegisterPage"
+            android:exported="false" />
         <activity
             android:name=".features.auth.presentation.RegisterPage"
             android:exported="false" />

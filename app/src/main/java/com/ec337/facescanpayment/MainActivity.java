@@ -11,7 +11,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.ec337.facescanpayment.features.auth.presentation.FaceDetectionPage;
+import com.ec337.facescanpayment.features.auth.presentation.FaceRegisterPage;
 import com.ec337.facescanpayment.features.auth.presentation.LoginPage;
+import com.ec337.facescanpayment.features.auth.presentation.RegisterPage;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -19,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth m_auth;
     private TextView txt_welcome, txt_email;
-    private Button btn_logout;
+    private Button btn_logout, btnRegisterFace, btnVerifyFace;
 
 
     @Override
@@ -33,30 +36,37 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize Firebase Auth
         m_auth = FirebaseAuth.getInstance();
 
-        // Initialize UI elements
         txt_welcome = findViewById(R.id.txt_welcome);
         txt_email = findViewById(R.id.txt_email);
         btn_logout = findViewById(R.id.btn_logout);
 
-        // Get current user
         FirebaseUser current_user = m_auth.getCurrentUser();
         if (current_user != null) {
-            // Display user's email on the screen
             txt_email.setText(current_user.getEmail());
         } else {
-            // If user is not logged in, navigate to login screen
             startActivity(new Intent(MainActivity.this, LoginPage.class));
             finish();
         }
 
-        // Set up the logout button to sign out the user
+        btnRegisterFace = findViewById(R.id.btnRegisterFace);
+        btnVerifyFace = findViewById(R.id.btnVerifyFace);
+
+        btnRegisterFace.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FaceRegisterPage.class);
+            startActivity(intent);
+        });
+
+        btnVerifyFace.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FaceDetectionPage.class);
+            startActivity(intent);
+        });
+
         btn_logout.setOnClickListener(v -> {
             m_auth.signOut();
             startActivity(new Intent(MainActivity.this, LoginPage.class));
-            finish(); // Close the main activity after logout
+            finish();
         });
     }
 }
