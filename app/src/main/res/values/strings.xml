@@ -28,4 +28,7 @@
     <string name="txt_gender_female">Nữ</string>
     <string name="txt_gender_other">Khác</string>
     <string name="txt_gender">Giới tính</string>
+    <string name="et_hint_enter_name">Enter the person\'s name</string>
+    <string name="btn_choose_photos">Choose Photos</string>
+    <string name="btn_add_to_database">Add to Database</string>
 </resources>
