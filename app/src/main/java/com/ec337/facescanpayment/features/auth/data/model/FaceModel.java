@@ -6,12 +6,13 @@ import com.ec337.facescanpayment.features.auth.data.entity.FaceEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FaceModel extends FaceEntity {
     private final String TAG = this.getClass().getSimpleName();
 
-    public FaceModel(String userId, String userName, String userEmail, List<Float> faceEmbedding) {
-        super(userId, userName, userEmail, faceEmbedding);
+    public FaceModel(String userId, String userName, String userEmail, Map<String, List<Float>> faceEmbeddings) {
+        super(userId, userName, userEmail, faceEmbeddings);
     }
 
     public static List<Float> convertToList(float[] array) {
@@ -22,20 +23,28 @@ public class FaceModel extends FaceEntity {
         return list;
     }
 
-    public void logFaceEmbedding() {
-        if (getFaceEmbedding() != null) {
+    // log embeddings
+    public void logFaceEmbeddings() {
+        if (getFaceEmbeddings() != null) {
             StringBuilder embeddingString = new StringBuilder();
-            for (float value : getFaceEmbedding()) {
-                embeddingString.append(value).append(", ");
+            for (Map.Entry<String, List<Float>> entry : getFaceEmbeddings().entrySet()) {
+                String key = entry.getKey();
+                List<Float> embedding = entry.getValue();
+
+                embeddingString.append(key).append(": ");
+                for (float value : embedding) {
+                    embeddingString.append(value).append(", ");
+                }
+                embeddingString.append("\n");
             }
 
             if (embeddingString.length() > 0) {
                 embeddingString.setLength(embeddingString.length() - 2);
             }
 
-            Log.d(TAG, "Face Embedding: " + embeddingString.toString());
+            Log.d(TAG, "Face Embeddings: " + embeddingString.toString());
         } else {
-            Log.d(TAG, "Face Embedding is null.");
+            Log.d(TAG, "Face Embeddings are null.");
         }
     }
 }

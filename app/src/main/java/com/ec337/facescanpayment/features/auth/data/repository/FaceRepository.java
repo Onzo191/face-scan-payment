@@ -1,6 +1,6 @@
 package com.ec337.facescanpayment.features.auth.data.repository;
 
-import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 
 import com.ec337.facescanpayment.features.auth.data.model.FaceModel;
@@ -12,12 +12,12 @@ public class FaceRepository {
     private final String TAG = this.getClass().getSimpleName();
 
     private final FirebaseFirestore firestore;
-    private final Application application;
+    private final Context context;
 
 
-    public FaceRepository(Application application) {
+    public FaceRepository(Context context) {
         this.firestore = FirebaseFirestore.getInstance();;
-        this.application = application;
+        this.context = context;
     }
 
     public void registerFace(FaceModel faceModel) {

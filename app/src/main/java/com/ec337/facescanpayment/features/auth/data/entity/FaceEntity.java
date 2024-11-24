@@ -1,18 +1,19 @@
 package com.ec337.facescanpayment.features.auth.data.entity;
 
 import java.util.List;
+import java.util.Map;
 
 public class FaceEntity {
     String userId;
     String userName;
     String userEmail;
-    List<Float> faceEmbedding;
+    Map<String, List<Float>> faceEmbeddings;
 
-    public FaceEntity(String userId, String userName, String userEmail, List<Float> faceEmbedding) {
+    public FaceEntity(String userId, String userName, String userEmail, Map<String, List<Float>> faceEmbeddings) {
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
-        this.faceEmbedding = faceEmbedding;
+        this.faceEmbeddings = faceEmbeddings;
     }
 
     public String getUserId() {
@@ -39,11 +40,11 @@ public class FaceEntity {
         this.userEmail = userEmail;
     }
 
-    public List<Float> getFaceEmbedding() {
-        return faceEmbedding;
+    public Map<String, List<Float>> getFaceEmbeddings() {
+        return faceEmbeddings;
     }
 
-    public void setFaceEmbedding(List<Float> faceEmbedding) {
-        this.faceEmbedding = faceEmbedding;
+    public void setFaceEmbeddings(Map<String, List<Float>> faceEmbeddings) {
+        this.faceEmbeddings = faceEmbeddings;
     }
 }

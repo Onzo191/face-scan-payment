@@ -1,4 +1,4 @@
-package com.ec337.facescanpayment.features.auth.presentation.adapter;
+package com.ec337.facescanpayment.features.auth.presentation.adapters;
 
 import android.net.Uri;
 import android.view.LayoutInflater;
