@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,9 +35,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FaceDetectionPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -43,6 +45,7 @@ public class FaceDetectionPage extends AppCompatActivity {
     private ImageVectorUseCase imageVectorUseCase;
     private MediapipeFaceDetector faceDetector;
     private boolean isDetecting = false;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     private int cameraFacing = CameraSelector.LENS_FACING_FRONT;
     private Camera camera;
@@ -53,6 +56,9 @@ public class FaceDetectionPage extends AppCompatActivity {
     private ImageView capturedImageView;
     private ImageCapture imageCapture;
     private Button switchCameraButton, capturePhotoButton, retryButton;
+
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
+    private static final int FACE_DETECTION_INTERVAL_MS = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,13 @@ public class FaceDetectionPage extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cameraExecutor.shutdownNow(); // Clean up executor
+        handler.removeCallbacksAndMessages(null);
+    }
+
     private void restartCamera() {
         startCamera();
     }
@@ -94,7 +107,7 @@ public class FaceDetectionPage extends AppCompatActivity {
             try {
                 cameraProvider = cameraProviderFuture.get();
                 bindCameraUseCases();
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Camera initialization failed: " + e.getMessage());
                 showToast("Camera initialization failed.");
             }
@@ -121,34 +134,47 @@ public class FaceDetectionPage extends AppCompatActivity {
             cameraProvider.unbindAll();
             camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
 
-            // auto capture
+            // Start periodic face detection
             startFaceDetection();
         });
     }
 
     private void startFaceDetection() {
+        Log.d(TAG, "Starting face detection...");
         if (isDetecting) {
-            new android.os.Handler().postDelayed(() -> {
-                Bitmap currentFrame = previewView.getBitmap();
-                if (currentFrame != null) {
-                    detectFaceInFrame(currentFrame);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (isDetecting) {
+                        Log.d(TAG, "Detecting faces...");
+                        Bitmap currentFrame = previewView.getBitmap();
+                        if (currentFrame != null) {
+                            detectFaceInFrame(currentFrame);
+                        }
+
+                        handler.postDelayed(this, FACE_DETECTION_INTERVAL_MS);
+                    }
                 }
-                startFaceDetection();
-            }, 2000);
+            }, FACE_DETECTION_INTERVAL_MS);
+        } else {
+            Log.d(TAG, "Face detection is paused or not started.");
         }
     }
 
     private void detectFaceInFrame(Bitmap currentFrame) {
+        Log.d(TAG, "Running face detection on frame...");
         Either<Failure, Bitmap> faceDetectionResult = faceDetector.getCroppedFaceFromBitmap(currentFrame);
 
         if (faceDetectionResult.isRight()) {
+            Log.d(TAG, "Face detected!");
             isDetecting = false;
-            new android.os.Handler().postDelayed(this::capturePhoto, 200);
+            handler.postDelayed(() -> {
+                runOnUiThread(this::capturePhoto);
+            }, 200);
         } else {
             Log.d(TAG, "No face detected.");
         }
     }
-
 
     private void capturePhoto() {
         if (imageCapture == null) {
@@ -168,7 +194,7 @@ public class FaceDetectionPage extends AppCompatActivity {
                     showCapturedImageView();
                     stopCamera();
 
-                    //testing
+                    // Testing
                     reviewCapturedPhoto();
                 }
                 image.close();
@@ -259,14 +285,14 @@ public class FaceDetectionPage extends AppCompatActivity {
     }
 
     private void requestCameraPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, 1);
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             startCamera();
         } else {
             showToast("Camera permission is required to use the camera.");
