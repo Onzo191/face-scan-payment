@@ -24,6 +24,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.ec337.facescanpayment.R;
+import com.ec337.facescanpayment.core.errors.Failure;
+import com.ec337.facescanpayment.core.face_detection.MediapipeFaceDetector;
+import com.ec337.facescanpayment.core.utils.Either;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,6 +41,8 @@ public class FaceDetectionPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
 
     private ImageVectorUseCase imageVectorUseCase;
+    private MediapipeFaceDetector faceDetector;
+    private boolean isDetecting = false;
 
     private int cameraFacing = CameraSelector.LENS_FACING_FRONT;
     private Camera camera;
@@ -55,6 +60,7 @@ public class FaceDetectionPage extends AppCompatActivity {
         setContentView(R.layout.auth__face_detection_page);
 
         imageVectorUseCase = new ImageVectorUseCase(this, new FaceRepository(this));
+        faceDetector = new MediapipeFaceDetector(this);
 
         previewView = findViewById(R.id.previewView);
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -66,7 +72,7 @@ public class FaceDetectionPage extends AppCompatActivity {
 
         switchCameraButton.setOnClickListener(v -> switchCamera());
         capturePhotoButton.setOnClickListener(v -> capturePhoto());
-        retryButton.setOnClickListener(v -> startCamera());
+        retryButton.setOnClickListener(v -> restartCamera());
 
         if (hasCameraPermissions()) {
             startCamera();
@@ -75,9 +81,13 @@ public class FaceDetectionPage extends AppCompatActivity {
         }
     }
 
+    private void restartCamera() {
+        startCamera();
+    }
+
     private void startCamera() {
+        isDetecting = true;
         hideCapturedImageView();
-        previewView.setVisibility(View.VISIBLE);
 
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -110,8 +120,35 @@ public class FaceDetectionPage extends AppCompatActivity {
 
             cameraProvider.unbindAll();
             camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+
+            // auto capture
+            startFaceDetection();
         });
     }
+
+    private void startFaceDetection() {
+        if (isDetecting) {
+            new android.os.Handler().postDelayed(() -> {
+                Bitmap currentFrame = previewView.getBitmap();
+                if (currentFrame != null) {
+                    detectFaceInFrame(currentFrame);
+                }
+                startFaceDetection();
+            }, 2000);
+        }
+    }
+
+    private void detectFaceInFrame(Bitmap currentFrame) {
+        Either<Failure, Bitmap> faceDetectionResult = faceDetector.getCroppedFaceFromBitmap(currentFrame);
+
+        if (faceDetectionResult.isRight()) {
+            isDetecting = false;
+            new android.os.Handler().postDelayed(this::capturePhoto, 200);
+        } else {
+            Log.d(TAG, "No face detected.");
+        }
+    }
+
 
     private void capturePhoto() {
         if (imageCapture == null) {
@@ -128,9 +165,7 @@ public class FaceDetectionPage extends AppCompatActivity {
                 Bitmap bitmap = imageProxyToBitmap(image);
                 if (bitmap != null) {
                     capturedImageView.setImageBitmap(bitmap);
-                    capturedImageView.setVisibility(View.VISIBLE);
-                    retryButton.setVisibility(View.VISIBLE);
-                    previewView.setVisibility(View.GONE);
+                    showCapturedImageView();
                     stopCamera();
 
                     //testing
@@ -203,9 +238,20 @@ public class FaceDetectionPage extends AppCompatActivity {
         showToast("Camera switched!");
     }
 
+    private void showCapturedImageView() {
+        retryButton.setVisibility(View.VISIBLE);
+        capturedImageView.setVisibility(View.VISIBLE);
+        capturePhotoButton.setVisibility(View.GONE);
+        switchCameraButton.setVisibility(View.GONE);
+        previewView.setVisibility(View.GONE);
+    }
+
     private void hideCapturedImageView() {
         retryButton.setVisibility(View.GONE);
         capturedImageView.setVisibility(View.GONE);
+        capturePhotoButton.setVisibility(View.VISIBLE);
+        switchCameraButton.setVisibility(View.VISIBLE);
+        previewView.setVisibility(View.VISIBLE);
     }
 
     private boolean hasCameraPermissions() {
@@ -217,7 +263,7 @@ public class FaceDetectionPage extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
