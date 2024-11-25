@@ -34,6 +34,10 @@ public class MainEntryPoint extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.app__main_entry_point);
+        setupInsets();
+    }
+
+    private void setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -44,12 +48,10 @@ public class MainEntryPoint extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        fetchCredential();
         animateLogo();
         startSplashDelay();
         startTimeoutHandler();
     }
-
 
     private void animateLogo() {
         ImageView logo = findViewById(R.id.ivLogo);
@@ -74,40 +76,33 @@ public class MainEntryPoint extends AppCompatActivity {
 
     private void startSplashDelay() {
         Log.d(TAG, "startSplashDelay: Splash delay started.");
-        handler.postDelayed(() -> {
-            Log.d(TAG, "startSplashDelay: Splash delay completed.");
-        }, SPLASH_DELAY);
+        handler.postDelayed(this::fetchCredential, SPLASH_DELAY);
     }
 
     private void startTimeoutHandler() {
         Log.d(TAG, "startTimeoutHandler: Timeout handler started.");
-        handler.postDelayed(() -> {
-            Log.e(TAG, "startTimeoutHandler: Timeout reached, showing network error.");
-            showNetworkErrorSnackbar();
-        }, MAX_LOAD_TIME);
+        handler.postDelayed(this::showNetworkErrorSnackbar, MAX_LOAD_TIME);
     }
 
     private void showNetworkErrorSnackbar() {
-        // Show snackbar if loading takes more than MAX_LOAD_TIME
+        Log.e(TAG, "startTimeoutHandler: Timeout reached, showing network error.");
         Snackbar.make(findViewById(R.id.main), "Kiểm tra lại kết nối mạng và thử lại!", Snackbar.LENGTH_INDEFINITE)
-                .setAction("Thử lại", v -> {
-                    startSplashDelay();
-                    fetchCredential();
-                    handler.removeCallbacksAndMessages(null);
-                    startTimeoutHandler();
-                })
+                .setAction("Thử lại", v -> retrySplashDelay())
                 .show();
+    }
+
+    private void retrySplashDelay() {
+        startSplashDelay();
+        handler.removeCallbacksAndMessages(null);
+        startTimeoutHandler();
     }
 
     private void fetchCredential() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
         boolean isLogin = currentUser != null;
-        if (isLogin) {
-            NavigationUtils.navigateTo(MainEntryPoint.this, MainActivity.class);
-        } else {
-            NavigationUtils.navigateTo(MainEntryPoint.this, LoginPage.class);
-        }
+        Class<?> targetActivity = isLogin ? MainActivity.class : LoginPage.class;
+        NavigationUtils.navigateTo(MainEntryPoint.this, targetActivity);
     }
 
     @Override
