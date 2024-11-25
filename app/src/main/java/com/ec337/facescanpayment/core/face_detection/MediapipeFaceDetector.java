@@ -89,6 +89,32 @@ public class MediapipeFaceDetector {
         }
     }
 
+    public Either<Failure, Bitmap> getCroppedFaceFromBitmap(Bitmap imageBitmap) {
+        try {
+            if (imageBitmap == null) {
+                return Either.left(new Failure(ErrorCode.FACE_DETECTOR_FAILURE));
+            }
+
+            List<Detection> faces = faceDetector.detect(new BitmapImageBuilder(imageBitmap).build()).detections();
+            if (faces.size() > 1) {
+                return Either.left(new Failure(ErrorCode.MULTIPLE_FACES));
+            } else if (faces.isEmpty()) {
+                return Either.left(new Failure(ErrorCode.NO_FACE));
+            } else {
+                RectF rectF = faces.get(0).boundingBox();
+                Rect rect = convertRectFToRect(rectF);
+
+                if (validateRect(imageBitmap, rect)) {
+                    return Either.right(cropBitmap(imageBitmap, rect));
+                } else {
+                    return Either.left(new Failure(ErrorCode.FACE_DETECTOR_FAILURE));
+                }
+            }
+        } catch (Exception e) {
+            return Either.left(new Failure(ErrorCode.FACE_DETECTOR_FAILURE));
+        }
+    }
+
     public List<Pair<Bitmap, Rect>> getAllCroppedFaces(Bitmap frameBitmap) {
         List<Pair<Bitmap, Rect>> croppedFaces  = new ArrayList<>();
         List<Detection> faces = faceDetector.detect(new BitmapImageBuilder(frameBitmap).build()).detections();

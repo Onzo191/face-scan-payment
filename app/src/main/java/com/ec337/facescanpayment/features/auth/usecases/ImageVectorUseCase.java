@@ -50,4 +50,15 @@ public class ImageVectorUseCase {
         faceModel.logFaceEmbeddings();
         faceRepository.registerFace(faceModel);
     }
+
+    public float[] processImage(Bitmap bitmap) {
+        Either<Failure, Bitmap> faceDetectionResult = faceDetector.getCroppedFaceFromBitmap(bitmap);
+        if (faceDetectionResult.isRight()) {
+            Bitmap croppedFace = faceDetectionResult.getRight();
+            if (croppedFace != null) {
+                return faceNet.getFaceEmbedding(croppedFace);
+            }
+        }
+        return new float[0];
+    }
 }
