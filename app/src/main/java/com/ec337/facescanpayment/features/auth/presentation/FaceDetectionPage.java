@@ -1,7 +1,6 @@
 package com.ec337.facescanpayment.features.auth.presentation;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,12 +13,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
@@ -30,31 +26,28 @@ import com.ec337.facescanpayment.core.errors.Failure;
 import com.ec337.facescanpayment.core.face_detection.MediapipeFaceDetector;
 import com.ec337.facescanpayment.core.utils.Either;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
+import com.ec337.facescanpayment.features.auth.presentation.widgets.CameraHandler;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class FaceDetectionPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
 
     private ImageVectorUseCase imageVectorUseCase;
     private MediapipeFaceDetector faceDetector;
+    private CameraHandler cameraHandler;
     private boolean isDetecting = false;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private int cameraFacing = CameraSelector.LENS_FACING_FRONT;
-    private Camera camera;
     private ProcessCameraProvider cameraProvider;
 
     private ExecutorService cameraExecutor;
     private PreviewView previewView;
     private ImageView capturedImageView;
-    private ImageCapture imageCapture;
     private Button switchCameraButton, capturePhotoButton, retryButton;
 
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
@@ -71,12 +64,14 @@ public class FaceDetectionPage extends AppCompatActivity {
         previewView = findViewById(R.id.previewView);
         cameraExecutor = Executors.newSingleThreadExecutor();
 
+        cameraHandler = new CameraHandler(previewView, handler);
+
         switchCameraButton = findViewById(R.id.switchCameraButton);
         capturePhotoButton = findViewById(R.id.capturePhotoButton);
         retryButton = findViewById(R.id.retryButton);
         capturedImageView = findViewById(R.id.capturedImageView);
 
-        switchCameraButton.setOnClickListener(v -> switchCamera());
+        switchCameraButton.setOnClickListener(v -> cameraHandler.switchCamera());
         capturePhotoButton.setOnClickListener(v -> capturePhoto());
         retryButton.setOnClickListener(v -> restartCamera());
 
@@ -94,10 +89,6 @@ public class FaceDetectionPage extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
     }
 
-    private void restartCamera() {
-        startCamera();
-    }
-
     private void startCamera() {
         isDetecting = true;
         hideCapturedImageView();
@@ -106,37 +97,14 @@ public class FaceDetectionPage extends AppCompatActivity {
         cameraProviderFuture.addListener(() -> {
             try {
                 cameraProvider = cameraProviderFuture.get();
-                bindCameraUseCases();
+                cameraHandler.startCamera(cameraProvider);
+
+                startFaceDetection();
             } catch (Exception e) {
                 Log.e(TAG, "Camera initialization failed: " + e.getMessage());
                 showToast("Camera initialization failed.");
             }
         }, ContextCompat.getMainExecutor(this));
-    }
-
-    private void bindCameraUseCases() {
-        previewView.post(() -> {
-            int previewWidth = previewView.getWidth();
-            int previewHeight = previewView.getHeight();
-
-            Preview preview = new Preview.Builder().build();
-            preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
-            imageCapture = new ImageCapture.Builder()
-                    .setTargetResolution(new android.util.Size(previewWidth, previewHeight))
-                    .setTargetRotation(previewView.getDisplay().getRotation())
-                    .build();
-
-            CameraSelector cameraSelector = new CameraSelector.Builder()
-                    .requireLensFacing(cameraFacing)
-                    .build();
-
-            cameraProvider.unbindAll();
-            camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
-
-            // Start periodic face detection
-            startFaceDetection();
-        });
     }
 
     private void startFaceDetection() {
@@ -167,35 +135,39 @@ public class FaceDetectionPage extends AppCompatActivity {
 
         if (faceDetectionResult.isRight()) {
             Log.d(TAG, "Face detected!");
-            isDetecting = false;
-            handler.postDelayed(() -> {
-                runOnUiThread(this::capturePhoto);
-            }, 200);
+            handler.postDelayed(() -> runOnUiThread(this::capturePhoto), 200);
         } else {
             Log.d(TAG, "No face detected.");
         }
     }
 
-    private void capturePhoto() {
-        if (imageCapture == null) {
-            showToast("ImageCapture is not initialized.");
-            return;
-        }
+    private void createEmbedding() {
+        Bitmap capturedBitmap = ((BitmapDrawable) capturedImageView.getDrawable()).getBitmap();
 
-        imageCapture.takePicture(ContextCompat.getMainExecutor(this), new ImageCapture.OnImageCapturedCallback() {
+        float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
+        if (embedding.length > 0) {
+            Log.d(TAG, "Face embedding: " + Arrays.toString(embedding));
+            showToast("Face embedding logged.");
+        } else {
+            showToast("No face detected.");
+        }
+    }
+
+    private void capturePhoto() {
+        isDetecting = false;
+
+        cameraHandler.capturePhoto(new ImageCapture.OnImageCapturedCallback() {
             @Override
             public void onCaptureSuccess(@NonNull ImageProxy image) {
                 super.onCaptureSuccess(image);
                 Log.d(TAG, "Photo capture succeeded.");
 
-                Bitmap bitmap = imageProxyToBitmap(image);
+                Bitmap bitmap = cameraHandler.imageProxyToBitmap(image);
                 if (bitmap != null) {
                     capturedImageView.setImageBitmap(bitmap);
                     showCapturedImageView();
                     stopCamera();
-
-                    // Testing
-                    reviewCapturedPhoto();
+                    createEmbedding();
                 }
                 image.close();
             }
@@ -209,59 +181,12 @@ public class FaceDetectionPage extends AppCompatActivity {
         });
     }
 
-    private Bitmap imageProxyToBitmap(ImageProxy imageProxy) {
-        ByteBuffer buffer = imageProxy.getPlanes()[0].getBuffer();
-        byte[] bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);
-
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-        bitmap = rotateBitmap(bitmap, rotationDegrees);
-
-        if (cameraFacing == CameraSelector.LENS_FACING_FRONT) {
-            bitmap = flipBitmap(bitmap);
-        }
-
-        return bitmap;
-    }
-
-    private Bitmap rotateBitmap(Bitmap bitmap, int rotationDegrees) {
-        android.graphics.Matrix matrix = new android.graphics.Matrix();
-        matrix.postRotate(rotationDegrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    private Bitmap flipBitmap(Bitmap bitmap) {
-        android.graphics.Matrix matrix = new android.graphics.Matrix();
-        matrix.preScale(-1, 1);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    private void reviewCapturedPhoto() {
-        Bitmap capturedBitmap = ((BitmapDrawable) capturedImageView.getDrawable()).getBitmap();
-
-        float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
-        if (embedding.length > 0) {
-            Log.d(TAG, "Face embedding: " + Arrays.toString(embedding));
-            showToast("Face embedding logged.");
-        } else {
-            showToast("No face detected.");
-        }
+    private void restartCamera() {
+        startCamera();
     }
 
     private void stopCamera() {
-        if (cameraProvider != null) {
-            cameraProvider.unbindAll();
-        }
-    }
-
-    private void switchCamera() {
-        cameraFacing = (cameraFacing == CameraSelector.LENS_FACING_BACK)
-                ? CameraSelector.LENS_FACING_FRONT
-                : CameraSelector.LENS_FACING_BACK;
-
-        startCamera();
-        showToast("Camera switched!");
+        cameraHandler.stopCamera();
     }
 
     private void showCapturedImageView() {
