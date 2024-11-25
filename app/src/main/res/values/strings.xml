@@ -31,4 +31,7 @@
     <string name="et_hint_enter_name">Enter the person\'s name</string>
     <string name="btn_choose_photos">Choose Photos</string>
     <string name="btn_add_to_database">Add to Database</string>
+    <string name="btn_switch_camera">Switch Camera</string>
+    <string name="btn_capture">Capture</string>
+    <string name="btn_retry">Retry</string>
 </resources>

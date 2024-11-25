@@ -34,6 +34,7 @@ public class MediapipeFaceDetector {
     private final FaceDetector faceDetector;
     FaceDetectorOptions faceDetectorOptions;
 
+
     public MediapipeFaceDetector(Context context) {
         this.context = context;
         final String modelName = "blaze_face_short_range.tflite";

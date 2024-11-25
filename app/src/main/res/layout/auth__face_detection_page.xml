@@ -2,7 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".features.auth.presentation.FaceDetectionPage">
 
     <!-- Camera Preview -->
     <androidx.camera.view.PreviewView
@@ -14,41 +15,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Face Overlay -->
-
-    <!-- Card View with Image -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardview"
+    <Button
+        android:id="@+id/capturePhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:visibility="gone"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/btn_capture"
+        app:layout_constraintBottom_toTopOf="@id/switchCameraButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@android:color/holo_green_dark"
-        app:strokeWidth="3dp">
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="320dp"
-            android:layout_height="380dp"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Take Photo Button -->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button_continue"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_margin="20dp"
-        android:text="Take photo"
-        android:textAllCaps="false"
+    <Button
+        android:id="@+id/switchCameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="@string/btn_switch_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/capturedImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/retryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_retry"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
