@@ -61,8 +61,8 @@ public class RegisterPage extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        if (validateInput(firstName, lastName, email, phone, password, confirmPassword, gender)) {
-            UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone);
+        if (validateInput(firstName, lastName, gender, email, phone, password, confirmPassword)) {
+            UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone, false);
             userRepository.registerUser(email, password, userEntity, task -> {
                 if (task.isSuccessful()) {
                     Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
@@ -74,8 +74,8 @@ public class RegisterPage extends AppCompatActivity {
         }
     }
 
-    private boolean validateInput(String firstName, String lastName, String email, String phone, String password, String confirmPassword, String gender) {
-        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || gender == null) {
+    private boolean validateInput(String firstName, String lastName, String gender, String email, String phone, String password, String confirmPassword) {
+        if (firstName.isEmpty() || lastName.isEmpty() || gender == null || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return false;
         }

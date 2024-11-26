@@ -6,16 +6,18 @@ public class UserEntity {
     private String gender;
     private String email;
     private String phone;
+    private Boolean hasFaceRegister;
 
     public UserEntity() {
     }
 
-    public UserEntity(String firstName, String lastName, String gender, String email, String phone) {
+    public UserEntity(String firstName, String lastName, String gender, String email, String phone, Boolean hasFaceRegister) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.email = email;
         this.phone = phone;
+        this.hasFaceRegister = hasFaceRegister;
     }
 
     public String getFirstName() {
@@ -56,5 +58,13 @@ public class UserEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Boolean getHasFaceRegister() {
+        return hasFaceRegister;
+    }
+
+    public void setHasFaceRegister(Boolean hasFaceRegister) {
+        this.hasFaceRegister = hasFaceRegister;
     }
 }
