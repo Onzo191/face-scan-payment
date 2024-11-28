@@ -18,9 +18,15 @@ import com.ec337.facescanpayment.features.auth.data.repository.api.types.Registe
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.RegisterResponse;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.UserRequest;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.UserResponse;
+import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceRequest;
+import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceResponse;
 import com.ec337.facescanpayment.features.auth.presentation.RegisterPage;
 
 import org.checkerframework.checker.units.qual.C;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -117,5 +123,35 @@ public class AuthRepository {
 
                     }
                 });
+    }
+
+    public void verifyFace(float[] embeddings,String userId, String userEmail,OnVerifyFaceListener listener) {
+        List<Float> embeddingList = new ArrayList<>();
+        for (float value : embeddings) {
+            embeddingList.add(value);
+        }
+        VerifyFaceRequest request = new VerifyFaceRequest(userId, userEmail, embeddingList);
+        AuthApiClient.getApiService(token)
+                .verifyFace(request)
+                .enqueue(new Callback<VerifyFaceResponse>() {
+                    @Override
+                    public void onResponse(Call<VerifyFaceResponse> call, Response<VerifyFaceResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d("AuthRepoitory", "Face verified successfully");
+                            listener.onSuccess(response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VerifyFaceResponse> call, Throwable t) {
+                        Log.e("AuthRepoitory", "Failed to verify face: " + t.getMessage());
+                        listener.onFailure(t.getMessage());
+                    }
+                });
+    }
+
+    public interface OnVerifyFaceListener {
+        void onSuccess(VerifyFaceResponse response);
+        void onFailure(String message);
     }
 }

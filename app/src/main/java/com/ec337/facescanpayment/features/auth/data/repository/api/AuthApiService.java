@@ -8,6 +8,8 @@ import com.ec337.facescanpayment.features.auth.data.repository.api.types.Registe
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.RegisterResponse;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.UserRequest;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.UserResponse;
+import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceRequest;
+import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -28,4 +30,7 @@ public interface AuthApiService {
 
     @POST("/register-face-v2")
     Call<RegisterFaceResponse> registerFace(@Body FaceModel faceModel);
+
+    @POST("/verify-face")
+    Call<VerifyFaceResponse> verifyFace(@Body VerifyFaceRequest verifyFaceRequest);
 }
