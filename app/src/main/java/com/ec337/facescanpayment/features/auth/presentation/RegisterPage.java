@@ -17,13 +17,14 @@ import com.ec337.facescanpayment.MainActivity;
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.features.auth.data.entity.UserEntity;
+import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.UserRepository;
 
 public class RegisterPage extends AppCompatActivity {
     private EditText etFirstName, etLastName, etEmail, etPhone, etPassword, etConfirmPassword;
     private RadioGroup rgGender;
     private UserRepository userRepository;
-
+    private AuthRepository authRepository = new AuthRepository();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,14 +64,15 @@ public class RegisterPage extends AppCompatActivity {
 
         if (validateInput(firstName, lastName, email, phone, password, confirmPassword, gender)) {
             UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone);
-            userRepository.registerUser(email, password, userEntity, task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-                    NavigationUtils.navigateTo(RegisterPage.this, MainActivity.class);
-                } else {
-                    Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
-                }
-            });
+            authRepository.register(this ,firstName, lastName, email, phone, gender, password);
+//            userRepository.registerUser(email, password, userEntity, task -> {
+//                if (task.isSuccessful()) {
+//                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
+//                    NavigationUtils.navigateTo(RegisterPage.this, MainActivity.class);
+//                } else {
+//                    Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
+//                }
+//            });
         }
     }
 

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ec337.facescanpayment.R;
+import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
 import com.ec337.facescanpayment.features.auth.presentation.adapters.ImageAdapter;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
@@ -37,7 +38,7 @@ public class FaceRegisterPage extends AppCompatActivity {
 
     private ImageVectorUseCase imageVectorUseCase;
 
-
+    private JwtToken jwtToken;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         faceRepository = new FaceRepository(getApplication());
@@ -84,9 +85,11 @@ public class FaceRegisterPage extends AppCompatActivity {
             Toast.makeText(this, "Please fill name and select images", Toast.LENGTH_SHORT).show();
             return;
         }
-        String userId = "user_" + userName;
-        String userEmail = userName + "@example.com";
-
+//        String userId = "user_" + userName;
+//        String userEmail = userName + "@example.com";
+        jwtToken = new JwtToken(this);
+        String userId = jwtToken.getUserId(this);
+        String userEmail = jwtToken.getUserEmail(this);
         imageVectorUseCase.processAndAddImage(userId, userName, userEmail, selectedImages);
 
         Toast.makeText(this, "Added to database", Toast.LENGTH_SHORT).show();

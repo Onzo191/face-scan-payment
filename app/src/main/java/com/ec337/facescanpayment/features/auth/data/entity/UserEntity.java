@@ -1,6 +1,7 @@
 package com.ec337.facescanpayment.features.auth.data.entity;
 
 public class UserEntity {
+    private String _id;
     private String firstName;
     private String lastName;
     private String gender;
@@ -56,5 +57,13 @@ public class UserEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getId() {
+        return _id;
+    }
+
+    public void setId(String id) {
+        this._id = id;
     }
 }

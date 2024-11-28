@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.features.auth.presentation.LoginPage;
 import com.google.android.material.snackbar.Snackbar;
@@ -27,6 +28,7 @@ public class MainEntryPoint extends AppCompatActivity {
     public static final long FADE_LOADING_DURATION = 800;
     public static final long MAX_LOAD_TIME = 30000;
 
+    private JwtToken jwtToken;
     private Handler handler = new Handler();
 
     @Override
@@ -35,6 +37,7 @@ public class MainEntryPoint extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.app__main_entry_point);
         setupInsets();
+        jwtToken = new JwtToken(this);
     }
 
     private void setupInsets() {
@@ -98,9 +101,14 @@ public class MainEntryPoint extends AppCompatActivity {
     }
 
     private void fetchCredential() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        boolean isLogin = currentUser != null;
+        String token = jwtToken.getToken();
+        Log.d(TAG, "fetchCredential: Token: " + token);
+//        FirebaseAuth auth = FirebaseAuth.getInstance();
+//        FirebaseUser currentUser = auth.getCurrentUser();
+//        boolean isLogin = currentUser != null;
+//        Class<?> targetActivity = isLogin ? MainActivity.class : LoginPage.class;
+//        NavigationUtils.navigateTo(MainEntryPoint.this, targetActivity);
+        boolean isLogin = token != null;
         Class<?> targetActivity = isLogin ? MainActivity.class : LoginPage.class;
         NavigationUtils.navigateTo(MainEntryPoint.this, targetActivity);
     }
