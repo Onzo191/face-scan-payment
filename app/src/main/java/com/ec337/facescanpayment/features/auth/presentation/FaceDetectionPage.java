@@ -153,7 +153,7 @@ public class FaceDetectionPage extends AppCompatActivity {
         float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
         if (embedding.length > 0) {
             Log.d(TAG, "Face embedding: " + Arrays.toString(embedding));
-            authRepository.verifyFace(embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {
+            authRepository.verifyFace(this,embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {
                 @Override
                 public void onSuccess(VerifyFaceResponse response) {
                     Float similarity = response.getSimilarity();

@@ -39,7 +39,7 @@ public class ImageVectorUseCase {
     }
 
     // Add the user's embedding to the firestore database
-    public void processAndAddImage(String userId, String userName, String userEmail, List<Uri> imageUriList) {
+    public void processAndAddImage(Context ctx, String userId, String userName, String userEmail, List<Uri> imageUriList) {
         Map<String, List<Float>> allEmbeddings = new HashMap<>();
 
         int index = 1;
@@ -58,7 +58,7 @@ public class ImageVectorUseCase {
         FaceModel faceModel = new FaceModel(userId, userName, userEmail, allEmbeddings);
         faceModel.logFaceEmbeddings();
 //        faceRepository.registerFace(faceModel);
-        authRepository.registerFace(faceModel);
+        authRepository.registerFace(ctx,faceModel);
     }
 
     public float[] processImage(Bitmap bitmap) {

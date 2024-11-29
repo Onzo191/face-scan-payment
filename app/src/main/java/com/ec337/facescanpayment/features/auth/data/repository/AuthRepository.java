@@ -88,6 +88,10 @@ public class AuthRepository {
     }
 
     public void getCurrentUser(Context ctx, String id) {
+        if (jwtToken == null) {
+            jwtToken = new JwtToken(ctx);
+            token = jwtToken.getToken();
+        }
         UserRequest request = new UserRequest(id);
         AuthApiClient.getApiService(token)
                 .getCurrentUser(id)
@@ -107,7 +111,11 @@ public class AuthRepository {
                 });
     }
 
-    public void registerFace(FaceModel faceModel) {
+    public void registerFace(Context ctx, FaceModel faceModel) {
+        if (jwtToken == null) {
+            jwtToken = new JwtToken(ctx);
+            token = jwtToken.getToken();
+        }
         AuthApiClient.getApiService(token)
                 .registerFace(faceModel)
                 .enqueue(new Callback<RegisterFaceResponse>() {
@@ -125,7 +133,12 @@ public class AuthRepository {
                 });
     }
 
-    public void verifyFace(float[] embeddings,String userId, String userEmail,OnVerifyFaceListener listener) {
+    public void verifyFace(Context ctx, float[] embeddings,String userId, String userEmail,OnVerifyFaceListener listener) {
+        if (jwtToken == null) {
+            jwtToken = new JwtToken(ctx);
+            token = jwtToken.getToken();
+        }
+
         List<Float> embeddingList = new ArrayList<>();
         for (float value : embeddings) {
             embeddingList.add(value);
