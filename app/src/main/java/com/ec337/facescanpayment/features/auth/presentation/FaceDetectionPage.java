@@ -25,7 +25,11 @@ import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.errors.Failure;
 import com.ec337.facescanpayment.core.face_detection.MediapipeFaceDetector;
 import com.ec337.facescanpayment.core.utils.Either;
+import com.ec337.facescanpayment.core.utils.JwtToken;
+import com.ec337.facescanpayment.features.auth.data.entity.UserEntity;
+import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
+import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceResponse;
 import com.ec337.facescanpayment.features.auth.presentation.widgets.CameraHandler;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,12 +48,12 @@ public class FaceDetectionPage extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private ProcessCameraProvider cameraProvider;
-
+    private AuthRepository authRepository = new AuthRepository();
     private ExecutorService cameraExecutor;
     private PreviewView previewView;
     private ImageView capturedImageView;
     private Button switchCameraButton, capturePhotoButton, retryButton;
-
+    private JwtToken jwtToken;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private static final int FACE_DETECTION_INTERVAL_MS = 2000;
 
@@ -143,10 +147,30 @@ public class FaceDetectionPage extends AppCompatActivity {
 
     private void createEmbedding() {
         Bitmap capturedBitmap = ((BitmapDrawable) capturedImageView.getDrawable()).getBitmap();
-
+        jwtToken = new JwtToken(this);
+        String userId = jwtToken.getUserId(this);
+        String userEmail = jwtToken.getUserEmail(this);
         float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
         if (embedding.length > 0) {
-            Log.d(TAG, "Face embedding: " + Arrays.toString(embedding));
+            authRepository.verifyFace(this,embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {
+                @Override
+                public void onSuccess(VerifyFaceResponse response) {
+                    Float similarity = response.getSimilarity();
+                    UserEntity user = response.getUser();
+                    if (similarity != null) {
+                        Log.d("faceDetect", "Face verified with user: " + user.getEmail());
+                        showToast("Face verified with similarity: " + similarity);
+                    } else {
+                        showToast("Face verified.");
+                    }
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    showToast("Face embedding verification failed: " + message);
+                }
+            });
             showToast("Face embedding logged.");
         } else {
             showToast("No face detected.");
@@ -226,5 +250,9 @@ public class FaceDetectionPage extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateUI() {
+
     }
 }

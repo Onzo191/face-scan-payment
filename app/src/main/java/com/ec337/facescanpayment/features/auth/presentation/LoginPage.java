@@ -18,10 +18,11 @@ import com.ec337.facescanpayment.core.credential.AuthenticationManager;
 import com.ec337.facescanpayment.core.utils.BiometricHelper;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.core.utils.UIManager;
+import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginPage extends AppCompatActivity {
-
+    private AuthRepository authRepository = new AuthRepository();
     private AuthenticationManager authManager;
     private BiometricHelper biometricHelper;
     private UIManager uiManager;
@@ -75,19 +76,7 @@ public class LoginPage extends AppCompatActivity {
 
         if (!email.isEmpty() && !password.isEmpty()) {
             uiManager.showLoading();
-            authManager.signInWithEmailPassword(email, password, new AuthenticationManager.OnAuthCompleteListener() {
-                @Override
-                public void onSuccess(FirebaseUser user) {
-                    Toast.makeText(LoginPage.this, "Login succeeded!", Toast.LENGTH_SHORT).show();
-                    NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    Toast.makeText(LoginPage.this, "Login failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    uiManager.hideLoading();
-                }
-            });
+            authRepository.login(this ,email, password);
         } else {
             Toast.makeText(LoginPage.this, "Please fill in both fields", Toast.LENGTH_SHORT).show();
         }
