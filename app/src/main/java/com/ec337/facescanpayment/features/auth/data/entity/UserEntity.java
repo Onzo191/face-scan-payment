@@ -1,23 +1,22 @@
 package com.ec337.facescanpayment.features.auth.data.entity;
 
 public class UserEntity {
+    private String _id;
     private String firstName;
     private String lastName;
     private String gender;
     private String email;
     private String phone;
-    private Boolean hasFaceRegister;
 
     public UserEntity() {
     }
 
-    public UserEntity(String firstName, String lastName, String gender, String email, String phone, Boolean hasFaceRegister) {
+    public UserEntity(String firstName, String lastName, String gender, String email, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.email = email;
         this.phone = phone;
-        this.hasFaceRegister = hasFaceRegister;
     }
 
     public String getFirstName() {
@@ -60,11 +59,11 @@ public class UserEntity {
         this.phone = phone;
     }
 
-    public Boolean getHasFaceRegister() {
-        return hasFaceRegister;
+    public String getId() {
+        return _id;
     }
 
-    public void setHasFaceRegister(Boolean hasFaceRegister) {
-        this.hasFaceRegister = hasFaceRegister;
+    public void setId(String id) {
+        this._id = id;
     }
 }
