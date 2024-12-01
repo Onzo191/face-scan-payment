@@ -8,7 +8,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AuthApiClient {
-    private static final String BASE_URL = "http://192.168.1.11:5000";
+    private static final String BASE_URL = "https://flask-api-weld-ten.vercel.app";
     private static AuthApiService apiService;
 
     public static AuthApiService getApiService(String token) {
