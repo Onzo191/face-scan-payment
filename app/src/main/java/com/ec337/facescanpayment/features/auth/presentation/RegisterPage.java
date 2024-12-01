@@ -65,14 +65,6 @@ public class RegisterPage extends AppCompatActivity {
         if (validateInput(firstName, lastName, email, phone, password, confirmPassword, gender)) {
             UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone);
             authRepository.register(this ,firstName, lastName, email, phone, gender, password);
-//            userRepository.registerUser(email, password, userEntity, task -> {
-//                if (task.isSuccessful()) {
-//                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-//                    NavigationUtils.navigateTo(RegisterPage.this, MainActivity.class);
-//                } else {
-//                    Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
-//                }
-//            });
         }
     }
 

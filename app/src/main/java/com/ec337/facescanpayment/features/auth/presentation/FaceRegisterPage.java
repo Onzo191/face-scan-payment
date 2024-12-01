@@ -85,8 +85,7 @@ public class FaceRegisterPage extends AppCompatActivity {
             Toast.makeText(this, "Please fill name and select images", Toast.LENGTH_SHORT).show();
             return;
         }
-//        String userId = "user_" + userName;
-//        String userEmail = userName + "@example.com";
+
         jwtToken = new JwtToken(this);
         String userId = jwtToken.getUserId(this);
         String userEmail = jwtToken.getUserEmail(this);

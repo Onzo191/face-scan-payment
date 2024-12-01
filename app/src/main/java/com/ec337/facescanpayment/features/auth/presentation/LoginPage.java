@@ -77,19 +77,6 @@ public class LoginPage extends AppCompatActivity {
         if (!email.isEmpty() && !password.isEmpty()) {
             uiManager.showLoading();
             authRepository.login(this ,email, password);
-//            authManager.signInWithEmailPassword(email, password, new AuthenticationManager.OnAuthCompleteListener() {
-//                @Override
-//                public void onSuccess(FirebaseUser user) {
-//                    Toast.makeText(LoginPage.this, "Login succeeded!", Toast.LENGTH_SHORT).show();
-//                    NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
-//                }
-//
-//                @Override
-//                public void onFailure(Exception e) {
-//                    Toast.makeText(LoginPage.this, "Login failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-//                    uiManager.hideLoading();
-//                }
-//            });
         } else {
             Toast.makeText(LoginPage.this, "Please fill in both fields", Toast.LENGTH_SHORT).show();
         }

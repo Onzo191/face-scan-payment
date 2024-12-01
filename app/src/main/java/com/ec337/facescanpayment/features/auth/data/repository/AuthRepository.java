@@ -100,7 +100,6 @@ public class AuthRepository {
                     public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             UserResponse user = response.body();
-//                            jwtToken.saveUserEmail(ctx, user.getUser().getEmail());
                         }
                     }
 

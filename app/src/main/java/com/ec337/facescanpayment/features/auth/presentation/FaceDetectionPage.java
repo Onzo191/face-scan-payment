@@ -152,7 +152,6 @@ public class FaceDetectionPage extends AppCompatActivity {
         String userEmail = jwtToken.getUserEmail(this);
         float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
         if (embedding.length > 0) {
-            Log.d(TAG, "Face embedding: " + Arrays.toString(embedding));
             authRepository.verifyFace(this,embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {
                 @Override
                 public void onSuccess(VerifyFaceResponse response) {

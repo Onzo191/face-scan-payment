@@ -57,7 +57,7 @@ public class ImageVectorUseCase {
 
         FaceModel faceModel = new FaceModel(userId, userName, userEmail, allEmbeddings);
         faceModel.logFaceEmbeddings();
-//        faceRepository.registerFace(faceModel);
+
         authRepository.registerFace(ctx,faceModel);
     }
 
