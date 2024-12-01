@@ -17,13 +17,14 @@ import com.ec337.facescanpayment.MainActivity;
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.features.auth.data.entity.UserEntity;
+import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.UserRepository;
 
 public class RegisterPage extends AppCompatActivity {
     private EditText etFirstName, etLastName, etEmail, etPhone, etPassword, etConfirmPassword;
     private RadioGroup rgGender;
     private UserRepository userRepository;
-
+    private AuthRepository authRepository = new AuthRepository();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,21 +62,14 @@ public class RegisterPage extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        if (validateInput(firstName, lastName, gender, email, phone, password, confirmPassword)) {
-            UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone, false);
-            userRepository.registerUser(email, password, userEntity, task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-                    NavigationUtils.navigateTo(RegisterPage.this, MainActivity.class);
-                } else {
-                    Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
-                }
-            });
+        if (validateInput(firstName, lastName, email, phone, password, confirmPassword, gender)) {
+            UserEntity userEntity = new UserEntity(firstName, lastName, gender, email, phone);
+            authRepository.register(this ,firstName, lastName, email, phone, gender, password);
         }
     }
 
-    private boolean validateInput(String firstName, String lastName, String gender, String email, String phone, String password, String confirmPassword) {
-        if (firstName.isEmpty() || lastName.isEmpty() || gender == null || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+    private boolean validateInput(String firstName, String lastName, String email, String phone, String password, String confirmPassword, String gender) {
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || gender == null) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return false;
         }
