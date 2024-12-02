@@ -3,6 +3,7 @@ package com.ec337.facescanpayment.features.auth.data.repository.api;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.RegisterRequest;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -12,26 +13,27 @@ public class AuthApiClient {
     private static AuthApiService apiService;
 
     public static AuthApiService getApiService(String token) {
-        if (apiService == null) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(chain -> chain.proceed(chain.request().newBuilder()
-                            .addHeader("Authorization", "Bearer " + token)
-                            .build()))
-                    .addInterceptor(logging)
-                    .build();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+                    Request request = original.newBuilder()
+                            .header("Authorization", "Bearer " + token)
+                            .method(original.method(), original.body())
+                            .build();
+                    return chain.proceed(request);
+                })
+                .addInterceptor(logging)
+                .build();
 
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .client(client)
-                    .build();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
 
-            apiService = retrofit.create(AuthApiService.class);
-        }
-
-        return apiService;
+        return retrofit.create(AuthApiService.class);
     }
 }

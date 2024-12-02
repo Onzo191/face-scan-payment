@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class UserModel extends UserEntity {
     public UserModel(String firstName, String lastName, String gender, String email, String phone,Boolean hasFaceRegister) {
-        super(firstName, lastName, gender, email, phone, hasFaceRegister);
+        super(firstName, lastName, gender, email, phone);
     }
 
     public Map<String, Object> toMap() {
@@ -17,7 +17,7 @@ public class UserModel extends UserEntity {
         userMap.put("gender", getGender());
         userMap.put("email", getEmail());
         userMap.put("phone", getPhone());
-        userMap.put("hasFaceRegister", getHasFaceRegister());
+//        userMap.put("hasFaceRegister", getHasFaceRegister());
         return userMap;
     }
 }

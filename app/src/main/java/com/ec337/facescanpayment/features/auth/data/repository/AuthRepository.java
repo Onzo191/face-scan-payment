@@ -49,7 +49,7 @@ public class AuthRepository {
                             token = response.body().getToken();
                             String id = response.body().getUser().getId();
                             String email = response.body().getUser().getEmail();
-                            Log.d("AuthRepoitory", "id: " + id);
+                            Log.d("AuthRepoitory", "token: " + token);
                             jwtToken.saveToken(token);
                             jwtToken.saveUserId(ctx, id);
                             jwtToken.saveUserEmail(ctx, email);
@@ -92,6 +92,7 @@ public class AuthRepository {
             jwtToken = new JwtToken(ctx);
             token = jwtToken.getToken();
         }
+        Log.d("AuthRepoitory", "Token: " + token);
         UserRequest request = new UserRequest(id);
         AuthApiClient.getApiService(token)
                 .getCurrentUser(id)
