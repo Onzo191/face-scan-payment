@@ -37,4 +37,13 @@
     <string name="sample__item_price">25.000d</string>
     <string name="sample__product_name">Product Name</string>
     <string name="sample__item_image">Product Image</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_face_detector">Face Detector</string>
+    <string name="nav_face_register">Face Register</string>
+    <string name="n_trang_c_a_h_ng">Đến trang cửa hàng</string>
+    <string name="ng_k_khu_n_m_t">Đăng ký khuôn mặt</string>
+    <string name="x_c_th_c_khu_n_m_t">Xác thực khuôn mặt</string>
+    <string name="ng_xu_t">Đăng xuất</string>
+    <string name="xin_ch_o">Xin chào,</string>
+    <string name="user_example_com">user@example.com</string>
 </resources>

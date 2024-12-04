@@ -10,62 +10,141 @@
 
     <!-- Welcome Message -->
     <TextView
-        android:id="@+id/txt_welcome"
+        android:id="@+id/txtWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="Welcome to the App!"
+        android:text="@string/xin_ch_o"
         android:textColor="@color/primary"
-        android:textSize="24sp"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- User's Email Display -->
     <TextView
-        android:id="@+id/txt_email"
+        android:id="@+id/txtEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="user@example.com"
+        android:layout_marginTop="8dp"
+        android:text="@string/user_example_com"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_welcome" />
+        app:layout_constraintTop_toBottomOf="@id/txtWelcome" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginTop="253dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="60dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt_email">
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail">
 
-        <Button
+        <LinearLayout
+            android:id="@+id/btnShop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_8dp"
+            android:background="@drawable/bg__store_item"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/_16dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/main_image_size"
+                android:layout_weight="1"
+                android:src="@drawable/ic_shop"
+                app:tint="@color/secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:paddingVertical="4dp"
+                android:text="@string/n_trang_c_a_h_ng"
+                android:textAlignment="center"
+                android:textColor="@color/secondary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btnRegisterFace"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Đăng ký khuôn mặt"
-            android:textSize="18sp" />
+            android:layout_marginBottom="@dimen/_8dp"
+            android:background="@drawable/bg__store_item"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/_16dp">
 
-        <Button
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/main_image_size"
+                android:layout_weight="1"
+                android:src="@drawable/ic_face_register"
+                app:tint="@color/secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:paddingVertical="4dp"
+                android:text="@string/ng_k_khu_n_m_t"
+                android:textAlignment="center"
+                android:textColor="@color/secondary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btnVerifyFace"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Xác thực khuôn mặt"
-            android:textSize="18sp" />
+            android:layout_marginBottom="@dimen/_8dp"
+            android:background="@drawable/bg__store_item"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/_16dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/main_image_size"
+                android:layout_weight="1"
+                android:src="@drawable/ic_face_detector"
+                app:tint="@color/secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:paddingVertical="4dp"
+                android:text="@string/x_c_th_c_khu_n_m_t"
+                android:textAlignment="center"
+                android:textColor="@color/secondary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btn_logout"
-            android:layout_width="wrap_content"
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Log Out" />
+            android:paddingVertical="16dp"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/primary"
+            android:text="@string/ng_xu_t" />
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

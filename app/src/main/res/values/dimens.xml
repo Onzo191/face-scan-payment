@@ -46,6 +46,8 @@
     <dimen name="radio_gap">16dp</dimen>
     <dimen name="_4dp">4dp</dimen>
     <dimen name="_8dp">8dp</dimen>
+    <dimen name="_60dp">60dp</dimen>
+    <dimen name="main_image_size">52dp</dimen>
     <!--  END:ratio  -->
 
 </resources>

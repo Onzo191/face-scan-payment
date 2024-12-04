@@ -1,72 +1,86 @@
 package com.ec337.facescanpayment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ec337.facescanpayment.core.utils.JwtToken;
+import com.ec337.facescanpayment.core.utils.NavigationUtils;
 import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.presentation.FaceDetectionPage;
 import com.ec337.facescanpayment.features.auth.presentation.FaceRegisterPage;
 import com.ec337.facescanpayment.features.auth.presentation.LoginPage;
+import com.ec337.facescanpayment.features.store.StorePage;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseAuth m_auth;
-    private TextView txt_welcome, txt_email;
-    private Button btn_logout, btnRegisterFace, btnVerifyFace;
-    private AuthRepository authRepository = new AuthRepository();
+    // jwtToken
     private JwtToken jwtToken;
+
+    // UI Components
+    private TextView txtWelcome, txtEmail;
+    private Button btnLogout;
+    private LinearLayout btnShop, btnRegisterFace, btnVerifyFace;
+
+    // Repository
+    private final AuthRepository authRepository = new AuthRepository();
+
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app__main_page);
 
-        m_auth = FirebaseAuth.getInstance();
-
-        txt_welcome = findViewById(R.id.txt_welcome);
-        txt_email = findViewById(R.id.txt_email);
-        btn_logout = findViewById(R.id.btn_logout);
-
+        // Initialize JwtToken
         jwtToken = new JwtToken(this);
-        String userId = jwtToken.getUserId(this);
-        String token = jwtToken.getToken();
-        FirebaseUser current_user = m_auth.getCurrentUser();
-//        if (token != null && userId != null) {
-        if (token != null) {
-//            authRepository.getCurrentUser(this, userId);
-            txt_email.setText(jwtToken.getUserEmail(this));
-        } else {
-            startActivity(new Intent(MainActivity.this, LoginPage.class));
-            finish();
-        }
 
+        // Initialize UI components
+        initUI();
 
+        // Handle user authentication
+        handleAuthentication();
+
+        // Set click listeners
+        setClickListeners();
+    }
+
+    private void initUI() {
+        txtWelcome = findViewById(R.id.txtWelcome);
+        txtEmail = findViewById(R.id.txtEmail);
+        btnLogout = findViewById(R.id.btnLogout);
+        btnShop = findViewById(R.id.btnShop);
         btnRegisterFace = findViewById(R.id.btnRegisterFace);
         btnVerifyFace = findViewById(R.id.btnVerifyFace);
+    }
 
-        btnRegisterFace.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, FaceRegisterPage.class);
-            startActivity(intent);
-        });
+    private void handleAuthentication() {
+        String token = jwtToken.getToken();
 
-        btnVerifyFace.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, FaceDetectionPage.class);
-            startActivity(intent);
-        });
+        if (token != null) {
+            // Set email from JWT token
+            txtEmail.setText(jwtToken.getUserEmail(this));
+        } else {
+            // Redirect to login if no token
+            NavigationUtils.navigateTo(this, LoginPage.class, true);
+        }
+    }
 
-        btn_logout.setOnClickListener(v -> {
-            m_auth.signOut();
-            jwtToken.clearToken();
-            jwtToken.deleteUser(this);
-            startActivity(new Intent(MainActivity.this, LoginPage.class));
-            finish();
-        });
+    private void setClickListeners() {
+        btnShop.setOnClickListener(v -> NavigationUtils.navigateTo(this, StorePage.class, false));
+        btnRegisterFace.setOnClickListener(v -> NavigationUtils.navigateTo(this, FaceRegisterPage.class, false));
+        btnVerifyFace.setOnClickListener(v -> NavigationUtils.navigateTo(this, FaceDetectionPage.class, false));
+        btnLogout.setOnClickListener(v -> logout());
+    }
+
+    private void logout() {
+        jwtToken.clearToken();
+        jwtToken.deleteUser(this);
+        NavigationUtils.navigateTo(this, LoginPage.class, true);
     }
 }
