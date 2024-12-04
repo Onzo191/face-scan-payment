@@ -34,4 +34,7 @@
     <string name="btn_switch_camera">Switch Camera</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_retry">Retry</string>
+    <string name="sample__item_price">25.000d</string>
+    <string name="sample__product_name">Product Name</string>
+    <string name="sample__item_image">Product Image</string>
 </resources>

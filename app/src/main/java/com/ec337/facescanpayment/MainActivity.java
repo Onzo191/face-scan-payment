@@ -38,8 +38,9 @@ public class MainActivity extends AppCompatActivity {
         String userId = jwtToken.getUserId(this);
         String token = jwtToken.getToken();
         FirebaseUser current_user = m_auth.getCurrentUser();
-        if (token != null && userId != null) {
-            authRepository.getCurrentUser(this, userId);
+//        if (token != null && userId != null) {
+        if (token != null) {
+//            authRepository.getCurrentUser(this, userId);
             txt_email.setText(jwtToken.getUserEmail(this));
         } else {
             startActivity(new Intent(MainActivity.this, LoginPage.class));
