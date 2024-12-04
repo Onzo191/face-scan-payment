@@ -106,8 +106,6 @@ public class MainEntryPoint extends AppCompatActivity {
 //        FirebaseAuth auth = FirebaseAuth.getInstance();
 //        FirebaseUser currentUser = auth.getCurrentUser();
 //        boolean isLogin = currentUser != null;
-//        Class<?> targetActivity = isLogin ? MainActivity.class : LoginPage.class;
-//        NavigationUtils.navigateTo(MainEntryPoint.this, targetActivity);
         boolean isLogin = token != null;
         Class<?> targetActivity = isLogin ? MainActivity.class : LoginPage.class;
         NavigationUtils.navigateTo(MainEntryPoint.this, targetActivity);

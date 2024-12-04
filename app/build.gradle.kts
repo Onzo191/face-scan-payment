@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.AaptOptions
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
@@ -57,6 +59,7 @@ dependencies {
     implementation(libs.tasks.vision)
     implementation(libs.recyclerview)
     implementation(libs.exifinterface)
+    implementation(libs.facemesh)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
