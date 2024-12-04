@@ -35,12 +35,11 @@ public class MainActivity extends AppCompatActivity {
         btn_logout = findViewById(R.id.btn_logout);
 
         jwtToken = new JwtToken(this);
-        String userId = jwtToken.getUserId(this);
+        String userId = jwtToken.getUserId();
         String token = jwtToken.getToken();
-        FirebaseUser current_user = m_auth.getCurrentUser();
         if (token != null && userId != null) {
             authRepository.getCurrentUser(this, userId);
-            txt_email.setText(jwtToken.getUserEmail(this));
+            txt_email.setText(jwtToken.getUserEmail());
         } else {
             startActivity(new Intent(MainActivity.this, LoginPage.class));
             finish();
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         btn_logout.setOnClickListener(v -> {
             m_auth.signOut();
             jwtToken.clearToken();
-            jwtToken.deleteUser(this);
+            jwtToken.deleteUser();
             startActivity(new Intent(MainActivity.this, LoginPage.class));
             finish();
         });

@@ -148,8 +148,8 @@ public class FaceDetectionPage extends AppCompatActivity {
     private void createEmbedding() {
         Bitmap capturedBitmap = ((BitmapDrawable) capturedImageView.getDrawable()).getBitmap();
         jwtToken = new JwtToken(this);
-        String userId = jwtToken.getUserId(this);
-        String userEmail = jwtToken.getUserEmail(this);
+        String userId = jwtToken.getUserId();
+        String userEmail = jwtToken.getUserEmail();
         float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
         if (embedding.length > 0) {
             authRepository.verifyFace(this,embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {

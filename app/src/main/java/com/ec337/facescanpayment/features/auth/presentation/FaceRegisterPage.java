@@ -87,8 +87,8 @@ public class FaceRegisterPage extends AppCompatActivity {
         }
 
         jwtToken = new JwtToken(this);
-        String userId = jwtToken.getUserId(this);
-        String userEmail = jwtToken.getUserEmail(this);
+        String userId = jwtToken.getUserId();
+        String userEmail = jwtToken.getUserEmail();
         imageVectorUseCase.processAndAddImage(this ,userId, userName, userEmail, selectedImages);
 
         Toast.makeText(this, "Added to database", Toast.LENGTH_SHORT).show();
