@@ -2,13 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="250dp"
-    android:layout_margin="@dimen/_8dp">
+    android:layout_margin="@dimen/_4dp">
 
     <LinearLayout
         android:id="@+id/rootItemLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/_16dp"
+        android:layout_margin="@dimen/_8dp"
         android:background="@drawable/bg__store_item"
         android:orientation="vertical">
 

@@ -60,12 +60,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleAuthentication() {
         String token = jwtToken.getToken();
-        String userId = jwtToken.getUserId(this);
+        String userId = jwtToken.getUserId();
 
         if (token != null && userId != null){
             // Set email from JWT token
             authRepository.getCurrentUser(this, userId);
-            txtEmail.setText(jwtToken.getUserEmail(this));
+            txtEmail.setText(jwtToken.getUserEmail());
         } else {
             // Redirect to login if no token
             NavigationUtils.navigateTo(this, LoginPage.class, true);
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         jwtToken.clearToken();
-        jwtToken.deleteUser(this);
+        jwtToken.deleteUser();
         NavigationUtils.navigateTo(this, LoginPage.class, true);
     }
 }

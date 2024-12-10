@@ -48,6 +48,7 @@
     <dimen name="_8dp">8dp</dimen>
     <dimen name="_60dp">60dp</dimen>
     <dimen name="main_image_size">52dp</dimen>
+    <dimen name="_32dp">32dp</dimen>
     <!--  END:ratio  -->
 
 </resources>
