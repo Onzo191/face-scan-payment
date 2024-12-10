@@ -2,6 +2,7 @@ package com.ec337.facescanpayment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,9 +60,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleAuthentication() {
         String token = jwtToken.getToken();
+        String userId = jwtToken.getUserId(this);
 
-        if (token != null) {
+        if (token != null && userId != null){
             // Set email from JWT token
+            authRepository.getCurrentUser(this, userId);
             txtEmail.setText(jwtToken.getUserEmail(this));
         } else {
             // Redirect to login if no token

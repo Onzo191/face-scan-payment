@@ -26,25 +26,25 @@ public class JwtToken {
         editor.apply();
     }
 
-    public void saveUserId(Context context, String userId) {
+    public void saveUserId(String userId) {
         editor.putString("userId", userId);
         editor.apply();
     }
 
-    public String getUserId(Context context) {
+    public String getUserId() {
         return sharedPreferences.getString("userId", null);
     }
 
-    public void saveUserEmail(Context context, String email) {
+    public void saveUserEmail(String email) {
         editor.putString("email", email);
         editor.apply();
     }
 
-    public String getUserEmail(Context context) {
+    public String getUserEmail() {
         return sharedPreferences.getString("email", null);
     }
 
-    public void deleteUser(Context context) {
+    public void deleteUser() {
         editor.remove("userId");
         editor.remove("email");
         editor.apply();
