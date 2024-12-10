@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.tasks.vision)
     implementation(libs.recyclerview)
     implementation(libs.exifinterface)
+    implementation(libs.picasso)
+    implementation(libs.shimmer)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

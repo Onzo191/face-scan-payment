@@ -1,7 +1,6 @@
 package com.ec337.facescanpayment;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -15,8 +14,7 @@ import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.presentation.FaceDetectionPage;
 import com.ec337.facescanpayment.features.auth.presentation.FaceRegisterPage;
 import com.ec337.facescanpayment.features.auth.presentation.LoginPage;
-import com.ec337.facescanpayment.features.store.StorePage;
-import com.google.firebase.auth.FirebaseAuth;
+import com.ec337.facescanpayment.features.store.presentation.StorePage;
 
 public class MainActivity extends AppCompatActivity {
 

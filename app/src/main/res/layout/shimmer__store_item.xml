@@ -10,17 +10,18 @@
         android:layout_height="match_parent"
         android:layout_margin="@dimen/_16dp"
         android:background="@drawable/bg__store_item"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/imgProduct"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:background="@color/grey2"
             android:contentDescription="@string/sample__item_image"
             android:padding="@dimen/_8dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/logo_techo_without_text"
             android:transitionName="productImage" />
 
         <LinearLayout
@@ -36,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
-                android:text="@string/sample__product_name"
+                android:background="@color/grey2"
                 android:textAlignment="center"
                 android:textColor="@color/secondary"
                 android:textSize="20sp"
@@ -47,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
-                android:text="@string/sample__item_price"
+                android:background="@color/grey2"
                 android:textAlignment="center"
                 android:textColor="@color/secondary"
                 android:textSize="18sp" />
@@ -57,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
-                android:text="@string/sl_100"
+                android:background="@color/grey2"
                 android:textAlignment="center"
                 android:textColor="@color/secondary"
                 android:textSize="18sp" />

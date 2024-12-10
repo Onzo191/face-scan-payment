@@ -29,7 +29,7 @@
             android:name=".features.cart.CartPage"
             android:exported="false" />
         <activity
-            android:name=".features.store.StorePage"
+            android:name=".features.store.presentation.StorePage"
             android:exported="false" />
         <activity
             android:name=".features.checkout.CheckoutPage"

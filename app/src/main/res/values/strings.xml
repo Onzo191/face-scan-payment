@@ -46,4 +46,10 @@
     <string name="ng_xu_t">Đăng xuất</string>
     <string name="xin_ch_o">Xin chào,</string>
     <string name="user_example_com">user@example.com</string>
+    <string name="sl_100">SL: 100</string>
+    <string name="back">Back</string>
+    <string name="techno_store">Techno Store</string>
+    <string name="mua_h_ng">Mua Hàng</string>
+    <string name="cart">Cart</string>
+    <string name="cart_badge">0</string>
 </resources>
