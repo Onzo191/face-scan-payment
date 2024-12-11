@@ -27,6 +27,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_person_name" />
 
+    <Button
+        android:id="@+id/btn_start_capture"
+        app:layout_constraintTop_toBottomOf="@+id/tv_selected_images"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bắt đầu chụp ảnh" />
+
     <TextView
         android:id="@+id/tv_selected_images"
         android:layout_width="match_parent"

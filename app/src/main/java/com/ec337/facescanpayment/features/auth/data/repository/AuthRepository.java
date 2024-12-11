@@ -114,21 +114,22 @@ public class AuthRepository {
             jwtToken = new JwtToken(ctx);
             token = jwtToken.getToken();
         }
-        AuthApiClient.getApiService(token)
-                .registerFace(faceModel)
-                .enqueue(new Callback<RegisterFaceResponse>() {
-                    @Override
-                    public void onResponse(Call<RegisterFaceResponse> call, Response<RegisterFaceResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            Log.d("AuthRepoitory", "Face registered successfully");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<RegisterFaceResponse> call, Throwable t) {
-
-                    }
-                });
+        Log.d("AuthRepoitory", "Face registered successfully");
+//        AuthApiClient.getApiService(token)
+//                .registerFace(faceModel)
+//                .enqueue(new Callback<RegisterFaceResponse>() {
+//                    @Override
+//                    public void onResponse(Call<RegisterFaceResponse> call, Response<RegisterFaceResponse> response) {
+//                        if (response.isSuccessful() && response.body() != null) {
+//                            Log.d("AuthRepoitory", "Face registered successfully");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<RegisterFaceResponse> call, Throwable t) {
+//
+//                    }
+//                });
     }
 
     public void verifyFace(Context ctx, float[] embeddings,String userId, String userEmail,OnVerifyFaceListener listener) {
