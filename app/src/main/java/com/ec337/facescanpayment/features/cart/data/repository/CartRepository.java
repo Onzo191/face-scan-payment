@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.ec337.facescanpayment.core.api.ApiClient;
 import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.features.cart.data.entity.CartEntity;
+import com.ec337.facescanpayment.features.cart.data.entity.CheckoutRequestEntity;
 import com.ec337.facescanpayment.features.cart.data.repository.api.CartApiService;
 import com.ec337.facescanpayment.features.store.data.repository.api.StoreApiService;
 
@@ -29,6 +30,10 @@ public class CartRepository {
         userId = jwtToken.getUserId();
     }
 
+    public String getUserId() {
+        return this.userId;
+    }
+
     public CompletableFuture<CartEntity> getUserCart() {
         CompletableFuture<CartEntity> future = new CompletableFuture<>();
 
@@ -39,8 +44,12 @@ public class CartRepository {
                         if (response.isSuccessful() && response.body() != null) {
                             future.complete(response.body());
                         } else {
-                            String error = response.errorBody() != null ? response.errorBody().toString() : "Unknown error";
-                            future.completeExceptionally(new Exception(error));
+                            if (response.code() == 404 || response.code() == 400) {
+                                future.completeExceptionally(new Exception("Cart not found"));
+                            } else {
+                                String error = response.errorBody() != null ? response.errorBody().toString() : "Unknown error";
+                                future.completeExceptionally(new Exception(error));
+                            }
                         }
                     }
 
@@ -85,6 +94,31 @@ public class CartRepository {
         CartApiService.AddProductRequestBody body = new CartApiService.AddProductRequestBody(userId, productId, quantity);
         ApiClient.getRetrofitClient(token).create(CartApiService.class)
                 .removeProductFromCart(body).enqueue(new Callback<CartEntity>() {
+                    @Override
+                    public void onResponse(@NonNull Call<CartEntity> call, @NonNull Response<CartEntity> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            future.complete(response.body());
+                        } else {
+                            String error = response.errorBody() != null ? response.errorBody().toString() : "Unknown error";
+                            future.completeExceptionally(new Exception(error));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<CartEntity> call, @NonNull Throwable t) {
+                        Log.e(TAG, "Failed to add product to cart: " + t.getMessage());
+                        future.completeExceptionally(t);
+                    }
+                });
+
+        return future;
+    }
+
+    public CompletableFuture<CartEntity> addNewOrder(CheckoutRequestEntity body) {
+        CompletableFuture<CartEntity> future = new CompletableFuture<>();
+
+        ApiClient.getRetrofitClient(token).create(CartApiService.class)
+                .addNewOrder(body).enqueue(new Callback<CartEntity>() {
                     @Override
                     public void onResponse(@NonNull Call<CartEntity> call, @NonNull Response<CartEntity> response) {
                         if (response.isSuccessful() && response.body() != null) {

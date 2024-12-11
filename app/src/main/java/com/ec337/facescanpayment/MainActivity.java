@@ -3,6 +3,7 @@ package com.ec337.facescanpayment;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         btnShop = findViewById(R.id.btnShop);
         btnRegisterFace = findViewById(R.id.btnRegisterFace);
         btnVerifyFace = findViewById(R.id.btnVerifyFace);
+        btnVerifyFace.setVisibility(View.GONE);
     }
 
     private void handleAuthentication() {

@@ -1,6 +1,9 @@
 package com.ec337.facescanpayment.features.cart.data.repository.api;
 
 import com.ec337.facescanpayment.features.cart.data.entity.CartEntity;
+import com.ec337.facescanpayment.features.cart.data.entity.CheckoutRequestEntity;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,6 +20,9 @@ public interface CartApiService {
 
     @POST("/remove-product-from-cart")
     Call<CartEntity> removeProductFromCart(@Body AddProductRequestBody body);
+
+    @POST("/add-new-order")
+    Call<CartEntity> addNewOrder(@Body CheckoutRequestEntity body);
 
     class AddProductRequestBody {
         private String user_id;

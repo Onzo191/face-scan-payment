@@ -65,4 +65,6 @@
     <string name="et_notify2">Các Technie nhấn nút bên dưới \nđể trở về trang chính nha!</string>
     <string name="et_notify1">Thành công</string>
     <string name="completed">Completed</string>
+    <string name="tv_thanh_to_n">Thanh toán</string>
+    <string name="btn_x_c_th_c_khu_n_m_t">Xác thực khuôn mặt</string>
 </resources>

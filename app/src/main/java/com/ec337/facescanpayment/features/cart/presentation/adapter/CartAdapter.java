@@ -29,12 +29,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private CartRepository cartRepository;
     private CartAdapter.CartUpdateListener cartUpdateListener;
     private boolean isProcessing = false;
+    private boolean isCheckout = false;
 
     public CartAdapter(Context context) {
         this.context = context;
         this.cartRepository = new CartRepository(context);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void isCheckout() {
+        this.isCheckout = true;
+        notifyDataSetChanged();
+    }
     public void setCartUpdateListener(CartAdapter.CartUpdateListener listener) {
         this.cartUpdateListener = listener;
     }
@@ -92,10 +98,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.tvProductPrice.setText(formattedPrice);
         holder.quantityEditText.setText(String.valueOf(item.getQuantity()));
 
-        // Disable buttons if processing
-        holder.quantityEditText.setEnabled(!isProcessing);
-        holder.btnIncreaseQuantity.setEnabled(!isProcessing);
-        holder.btnDecreaseQuantity.setEnabled(!isProcessing);
+        updateButtonState(holder, !isProcessing && !isCheckout);
 
         // Handle quantity increase
         holder.btnIncreaseQuantity.setOnClickListener(v -> {

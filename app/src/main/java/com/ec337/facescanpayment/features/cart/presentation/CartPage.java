@@ -37,7 +37,6 @@ public class CartPage extends AppCompatActivity {
     private CartRepository cartRepository;
     private CartAdapter cartAdapter;
     private TextView tvTotal;
-    private StoreRepository storeRepository;
     private ShimmerFrameLayout shimmerFrameLayout;
 
     @Override
@@ -51,7 +50,6 @@ public class CartPage extends AppCompatActivity {
 
         //cart
         cartRepository = new CartRepository(this);
-        storeRepository = new StoreRepository(this);
 
         initViews();
         fetchCart();
@@ -117,7 +115,7 @@ public class CartPage extends AppCompatActivity {
             shimmerFrameLayout.stopShimmer();
             shimmerFrameLayout.setVisibility(View.GONE);
 
-            if (item != null) {
+            if (item != null && item.getProducts() != null && !item.getProducts().isEmpty()) {
                 cartAdapter.setProducts(item.getProducts());
                 cartAdapter.setCartUpdateListener(new CartAdapter.CartUpdateListener() {
                     @Override
@@ -140,7 +138,13 @@ public class CartPage extends AppCompatActivity {
                 btnStore.setVisibility(View.VISIBLE);
             }
         }).exceptionally(ex -> {
-            Toast.makeText(this, "Error: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("CartPage", "Error fetching cart: " + ex.getMessage());
+            shimmerFrameLayout.stopShimmer();
+            shimmerFrameLayout.setVisibility(View.GONE);
+
+            llEmptyCart.setVisibility(View.VISIBLE);
+            btnPayment.setVisibility(View.GONE);
+            btnStore.setVisibility(View.VISIBLE);
             return null;
         });
     }
