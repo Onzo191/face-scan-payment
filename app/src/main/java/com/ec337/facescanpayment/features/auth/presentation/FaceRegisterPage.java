@@ -47,8 +47,6 @@ public class FaceRegisterPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
 
     private final List<Bitmap> validBitmaps = new ArrayList<>(); // Lưu các ảnh hợp lệ
-    private final List<Uri> selectedImages = new ArrayList<>();
-    private ImageAdapter imageAdapter;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaLauncher;
     FaceRepository faceRepository;
 
@@ -75,13 +73,12 @@ public class FaceRegisterPage extends AppCompatActivity {
         imageVectorUseCase = new ImageVectorUseCase(this, new FaceRepository(this));
 
         initViews();
-//        previewView = findViewById(R.id.previewView);
+        previewView = findViewById(R.id.previewView);
         cameraExecutor = Executors.newSingleThreadExecutor();
         startCamera();
     }
 
     private void initViews() {
-        etPersonName = findViewById(R.id.et_person_name);
         btnChoosePhoto = findViewById(R.id.btn_choose_photos);
         btnAddToDatabase = findViewById(R.id.btn_add_to_database);
 

@@ -8,25 +8,6 @@
     android:padding="16dp"
     tools:context=".features.auth.presentation.FaceRegisterPage">
 
-    <EditText
-        android:id="@+id/et_person_name"
-        android:layout_width="match_parent"
-        android:paddingVertical="@dimen/_12dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/et_hint_enter_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btn_choose_photos"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_choose_photos"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_person_name" />
-
     <Button
         android:id="@+id/btn_start_capture"
         app:layout_constraintTop_toBottomOf="@+id/tv_selected_images"
@@ -43,14 +24,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_add_to_database" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_images"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        app:layout_constraintTop_toBottomOf="@+id/btn_start_capture"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_selected_images" />
+        android:layout_height="0dp" />
 
     <Button
         android:id="@+id/btn_add_to_database"
