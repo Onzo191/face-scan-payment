@@ -1,6 +1,7 @@
 package com.ec337.facescanpayment.features.auth.presentation;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +17,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ec337.facescanpayment.R;
+import com.ec337.facescanpayment.core.notify.NotifyPage;
 import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
 import com.ec337.facescanpayment.features.auth.presentation.adapters.ImageAdapter;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
+import com.ec337.facescanpayment.features.cart.presentation.CheckoutPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +94,11 @@ public class FaceRegisterPage extends AppCompatActivity {
         String userEmail = jwtToken.getUserEmail();
         imageVectorUseCase.processAndAddImage(this ,userId, userName, userEmail, selectedImages);
 
-        Toast.makeText(this, "Added to database", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Face register successful!", Toast.LENGTH_SHORT).show();
+        Intent notifyIntent = new Intent(this, NotifyPage.class);
+        notifyIntent.putExtra("text", "Đăng ký thành công");
+        notifyIntent.putExtra("imageSrc", R.drawable.logo_face_register_completed);
+        startActivity(notifyIntent);
     }
 
     @SuppressLint("NotifyDataSetChanged")
