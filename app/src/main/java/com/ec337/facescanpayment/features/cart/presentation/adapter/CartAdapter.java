@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.features.cart.data.entity.CartEntity.CartProduct;
 import com.ec337.facescanpayment.features.cart.data.repository.CartRepository;
+import com.ec337.facescanpayment.features.store.presentation.adapter.StoreAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private final Context context;
     private List<CartProduct> cartItems;
     private CartRepository cartRepository;
+    private CartAdapter.CartUpdateListener cartUpdateListener;
     private boolean isProcessing = false;
 
     public CartAdapter(Context context) {
@@ -33,10 +35,34 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         this.cartRepository = new CartRepository(context);
     }
 
+    public void setCartUpdateListener(CartAdapter.CartUpdateListener listener) {
+        this.cartUpdateListener = listener;
+    }
+
+    private void updateCartTotal() {
+        if (cartUpdateListener != null) {
+            cartUpdateListener.onCartUpdated(true);
+        }
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     public void setProducts(List<CartProduct> cartItems) {
         this.cartItems = cartItems;
         notifyDataSetChanged();
+    }
+
+    public List<CartProduct> getProducts() {
+        return cartItems;
+    }
+
+    public Integer getCartTotal() {
+        int total = 0;
+        if (cartItems != null) {
+            for (CartProduct product : cartItems) {
+                total += product.getPrice() * product.getQuantity();
+            }
+        }
+        return total;
     }
 
     @NonNull
@@ -60,7 +86,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         }
 
         holder.tvProductName.setText(item.getName());
-        holder.tvProductPrice.setText(String.valueOf(item.getPrice()));
+
+        Long price = item.getPrice();
+        String formattedPrice = String.format("%,d", price);
+        holder.tvProductPrice.setText(formattedPrice);
         holder.quantityEditText.setText(String.valueOf(item.getQuantity()));
 
         // Disable buttons if processing
@@ -77,6 +106,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 cartRepository.addProductToCart(item.getId(), 1).thenAccept(updatedCart -> {
                     item.setQuantity(item.getQuantity() + 1);
                     notifyItemChanged(position);
+                    updateCartTotal();
                 }).exceptionally(ex -> {
                     Toast.makeText(context, "Failed to update cart: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
                     return null;
@@ -96,6 +126,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 cartRepository.removeProductFromCart(item.getId(), 1).thenAccept(updatedCart -> {
                     item.setQuantity(item.getQuantity() - 1);
                     notifyItemChanged(position);
+                    updateCartTotal();
                 }).exceptionally(ex -> {
                     Toast.makeText(context, "Failed to update cart: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
                     return null;
@@ -138,5 +169,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             btnIncreaseQuantity = itemView.findViewById(R.id.btnIncreaseQuantity);
             btnDecreaseQuantity = itemView.findViewById(R.id.btnDecreaseQuantity);
         }
+    }
+
+    public interface CartUpdateListener {
+        void onCartUpdated(boolean increment);
     }
 }

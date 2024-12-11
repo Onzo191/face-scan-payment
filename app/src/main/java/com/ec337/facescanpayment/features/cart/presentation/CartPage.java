@@ -1,11 +1,13 @@
 package com.ec337.facescanpayment.features.cart.presentation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,24 +20,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
+import com.ec337.facescanpayment.features.cart.data.entity.CartEntity;
 import com.ec337.facescanpayment.features.cart.data.repository.CartRepository;
 import com.ec337.facescanpayment.features.cart.presentation.adapter.CartAdapter;
-import com.ec337.facescanpayment.features.checkout.CheckoutPage;
-import com.ec337.facescanpayment.features.store.data.entity.ProductEntity;
 import com.ec337.facescanpayment.features.store.data.repository.StoreRepository;
 import com.ec337.facescanpayment.features.store.presentation.StorePage;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CartPage extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private LinearLayout llEmptyCart;
+    private LinearLayout llEmptyCart, llTotal;
     private Button btnStore, btnPayment;
     private ImageButton btnBack;
     private CartRepository cartRepository;
     private CartAdapter cartAdapter;
+    private TextView tvTotal;
     private StoreRepository storeRepository;
     private ShimmerFrameLayout shimmerFrameLayout;
 
@@ -70,6 +71,8 @@ public class CartPage extends AppCompatActivity {
         shimmerFrameLayout = findViewById(R.id.shimmerContainer);
         recyclerView = findViewById(R.id.rvCartList);
         llEmptyCart = findViewById(R.id.llEmptyCart);
+        llTotal = findViewById(R.id.llTotal);
+        tvTotal = findViewById(R.id.tvTotalPrice);
         btnBack = findViewById(R.id.btnBack);
         btnStore = findViewById(R.id.btnStore);
         btnPayment = findViewById(R.id.btnPayment);
@@ -83,6 +86,7 @@ public class CartPage extends AppCompatActivity {
         btnPayment.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
         llEmptyCart.setVisibility(View.GONE);
+        llTotal.setVisibility(View.GONE);
         btnStore.setVisibility(View.VISIBLE);
         shimmerFrameLayout.setVisibility(View.VISIBLE);
     }
@@ -90,7 +94,22 @@ public class CartPage extends AppCompatActivity {
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> NavigationUtils.navigateTo(this, StorePage.class, true));
         btnStore.setOnClickListener(v -> NavigationUtils.navigateTo(this, StorePage.class, true));
-        btnPayment.setOnClickListener(v -> NavigationUtils.navigateTo(this, CheckoutPage.class, true));
+        btnPayment.setOnClickListener(v -> {
+            List<CartEntity.CartProduct> cartProducts = cartAdapter.getProducts();
+            String productsJson = CartEntity.productsToJson(cartProducts);
+            int total = cartAdapter.getCartTotal();
+
+            Intent intent = new Intent(this, CheckoutPage.class);
+            intent.putExtra("cart_products", productsJson);
+            intent.putExtra("total_price", total);
+            startActivity(intent);
+        });
+    }
+
+    private void updateTotal() {
+        int total = cartAdapter.getCartTotal();
+        String formattedTotal = String.format("%,d", total);
+        tvTotal.setText(formattedTotal);
     }
 
     private void fetchCart() {
@@ -100,7 +119,18 @@ public class CartPage extends AppCompatActivity {
 
             if (item != null) {
                 cartAdapter.setProducts(item.getProducts());
-                Log.d("Tuandeptrai: ", item.toString());
+                cartAdapter.setCartUpdateListener(new CartAdapter.CartUpdateListener() {
+                    @Override
+                    public void onCartUpdated(boolean increment) {
+                        updateTotal();
+                    }
+                });
+
+                int total = item.getTotal();
+                String formattedTotal = String.format("%,d", total);
+                tvTotal.setText(formattedTotal);
+
+                llTotal.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
                 btnPayment.setVisibility(View.VISIBLE);
                 btnStore.setVisibility(View.GONE);

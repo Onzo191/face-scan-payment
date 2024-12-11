@@ -35,7 +35,7 @@
             android:name=".features.store.presentation.StorePage"
             android:exported="false" />
         <activity
-            android:name=".features.checkout.CheckoutPage"
+            android:name=".features.cart.presentation.CheckoutPage"
             android:exported="false" />
         <activity
             android:name=".features.auth.presentation.FaceDetectionPage"

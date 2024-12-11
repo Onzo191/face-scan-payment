@@ -1,5 +1,9 @@
 package com.ec337.facescanpayment.features.cart.data.entity;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class CartEntity {
@@ -63,6 +67,17 @@ public class CartEntity {
         public void setQuantity(int quantity) {
             this.quantity = quantity;
         }
+    }
+
+    public static String productsToJson(List<CartProduct> products) {
+        Gson gson = new Gson();
+        return gson.toJson(products);
+    }
+
+    public static List<CartProduct> productsFromJson(String json) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<CartProduct>>() {}.getType();
+        return gson.fromJson(json, listType);
     }
 
     public String getId() {
