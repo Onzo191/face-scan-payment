@@ -18,13 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ec337.facescanpayment.MainActivity;
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.utils.NavigationUtils;
-import com.ec337.facescanpayment.features.cart.CartPage;
+import com.ec337.facescanpayment.features.cart.presentation.CartPage;
 import com.ec337.facescanpayment.features.store.data.repository.StoreRepository;
 import com.ec337.facescanpayment.features.store.presentation.adapter.StoreAdapter;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
 public class StorePage extends AppCompatActivity {
-
+    private int badgeCount = 0;
     private RecyclerView recyclerView;
     ImageButton btnBack, btnCart;
     private TextView badge;
@@ -42,10 +42,11 @@ public class StorePage extends AppCompatActivity {
     private void init() {
         initInsets();
 
-        //store
+        //repository
         storeRepository = new StoreRepository(this);
 
         initViews();
+        updateCartBadge();
         fetchProducts();
     }
 
@@ -70,8 +71,14 @@ public class StorePage extends AppCompatActivity {
 
         //adapter - recycler views
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        storeAdapter = new StoreAdapter();
-        storeAdapter.setCartUpdateListener(this::updateCartBadege);
+        storeAdapter = new StoreAdapter(this);
+        storeAdapter.setCartUpdateListener(increment -> {
+            if (increment) {
+                incrementBadgeCount();
+            } else {
+                decrementBadgeCount();
+            }
+        });
         recyclerView.setAdapter(storeAdapter);
 
         //visibility
@@ -81,18 +88,40 @@ public class StorePage extends AppCompatActivity {
 
     private void setupClickListener() {
         btnBack.setOnClickListener(v -> NavigationUtils.navigateTo(this, MainActivity.class, true));
-        btnCart.setOnClickListener(v -> NavigationUtils.navigateTo(this, CartPage.class, true));
+        btnCart.setOnClickListener(v -> NavigationUtils.navigateTo(this, CartPage.class, false));
     }
 
-    private void updateCartBadege() {
-        int cartSize = 1; //gonna fetch
+    private void updateCartBadge() {
+        storeAdapter.getCartTotalQuantity().thenAccept(cartSize -> {
+            badgeCount = cartSize;
+            runOnUiThread(() -> {
+                if (badgeCount > 0) {
+                    badge.setVisibility(View.VISIBLE);
+                    badge.setText(String.valueOf(badgeCount));
+                } else {
+                    badge.setVisibility(View.GONE);
+                }
+            });
+        });
+    }
 
-        if (cartSize > 0) {
+    public void incrementBadgeCount() {
+        badgeCount++;
+        runOnUiThread(() -> {
             badge.setVisibility(View.VISIBLE);
-            badge.setText(String.valueOf(cartSize));
-        } else {
-            badge.setVisibility(View.GONE);
-        }
+            badge.setText(String.valueOf(badgeCount));
+        });
+    }
+
+    public void decrementBadgeCount() {
+        badgeCount = Math.max(0, badgeCount - 1);
+        runOnUiThread(() -> {
+            if (badgeCount > 0) {
+                badge.setText(String.valueOf(badgeCount));
+            } else {
+                badge.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void fetchProducts() {

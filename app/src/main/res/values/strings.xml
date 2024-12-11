@@ -52,4 +52,17 @@
     <string name="mua_h_ng">Mua Hàng</string>
     <string name="cart">Cart</string>
     <string name="cart_badge">0</string>
+    <string name="gi_h_ng">Giỏ hàng</string>
+    <string name="thanh_to_n">Thanh Toán</string>
+    <string name="cart_is_empty">Cart is empty</string>
+    <string name="gi_h_ng_c_m_th_y_c_n">Giỏ hàng cảm thấy cô đơn!</string>
+    <string name="cart_empty_2">Ghé thăm cửa hàng và chọn sản phẩm ưng ý cho mình các Technieeeee ơi!</string>
+    <string name="ti_p_t_c_mua_s_m">Tiếp tục mua sắm</string>
+    <string name="decrease">Decrease</string>
+    <string name="increase">Increase</string>
+    <string name="t_ng_c_ng">Tổng cộng:</string>
+    <string name="_2_500_000">2.500.000đ</string>
+    <string name="et_notify2">Các Technie nhấn nút bên dưới \nđể trở về trang chính nha!</string>
+    <string name="et_notify1">Thành công</string>
+    <string name="completed">Completed</string>
 </resources>

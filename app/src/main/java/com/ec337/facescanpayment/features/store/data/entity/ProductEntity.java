@@ -5,9 +5,9 @@ public class ProductEntity {
     String image;
     String name;
     String price;
-    String quantity;
+    Integer quantity;
 
-    public ProductEntity(String id, String image, String name, String price, String quantity) {
+    public ProductEntity(String id, String image, String name, String price, Integer quantity) {
         this.id = id;
         this.image = image;
         this.name = name;
@@ -47,11 +47,11 @@ public class ProductEntity {
         this.price = price;
     }
 
-    public String getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 }
