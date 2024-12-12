@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.tensorflow.lite.support)
     implementation(libs.recyclerview)
     implementation(libs.exifinterface)
+    implementation(libs.picasso)
+    implementation(libs.shimmer)
     testImplementation(libs.junit)
     implementation(libs.tasks.vision)
 //    implementation(libs.facemesh)

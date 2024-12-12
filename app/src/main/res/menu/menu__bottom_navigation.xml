@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_shop"
+        android:icon="@drawable/ic_shop"
+        android:title="@string/nav_shop" />
+
+    <item
+        android:id="@+id/nav_face_detector"
+        android:icon="@drawable/ic_face_detector"
+        android:title="@string/nav_face_detector" />
+
+    <item
+        android:id="@+id/nav_face_register"
+        android:icon="@drawable/ic_face_register"
+        android:title="@string/nav_face_register" />
+
+</menu>

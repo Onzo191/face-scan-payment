@@ -1,5 +1,6 @@
 package com.ec337.facescanpayment.features.auth.presentation;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.api.types.VerifyFaceResponse;
 import com.ec337.facescanpayment.features.auth.presentation.widgets.CameraHandler;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
+import com.ec337.facescanpayment.features.cart.presentation.CheckoutPage;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
@@ -151,31 +153,54 @@ public class FaceDetectionPage extends AppCompatActivity {
         String userId = jwtToken.getUserId();
         String userEmail = jwtToken.getUserEmail();
         float[] embedding = imageVectorUseCase.processImage(capturedBitmap);
+
         if (embedding.length > 0) {
-            authRepository.verifyFace(this,embedding,userId,userEmail, new AuthRepository.OnVerifyFaceListener() {
+            authRepository.verifyFace(this, embedding, userId, userEmail, new AuthRepository.OnVerifyFaceListener() {
                 @Override
                 public void onSuccess(VerifyFaceResponse response) {
                     Float similarity = response.getSimilarity();
                     UserEntity user = response.getUser();
+
                     if (similarity != null) {
-                        Log.d("faceDetect", "Face verified with user: " + user.getEmail());
-                        showToast("Face verified with similarity: " + similarity);
+                        Intent resultIntent = new Intent();
+                        if (similarity >= 0.65) {
+                            resultIntent.putExtra("isVerified", true);
+                        } else {
+                            showRetry();
+//                            resultIntent.putExtra("isVerified", false);
+                        }
+                        setResult(RESULT_OK, resultIntent);
+                        finish();
                     } else {
-                        showToast("Face verified.");
+                        showRetry();
+                        showToast("Failed to get similarity.");
+                        Intent resultIntent = new Intent();
+//                        resultIntent.putExtra("isVerified", false);
+                        setResult(RESULT_OK, resultIntent);
+                        finish();
                     }
-                    updateUI();
                 }
 
                 @Override
                 public void onFailure(String message) {
+                    showRetry();
                     showToast("Face embedding verification failed: " + message);
+                    Intent resultIntent = new Intent();
+//                    resultIntent.putExtra("isVerified", false);
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
                 }
             });
-            showToast("Face embedding logged.");
         } else {
+            showRetry();
             showToast("No face detected.");
+            Intent resultIntent = new Intent();
+//            resultIntent.putExtra("isVerified", false);
+            setResult(RESULT_OK, resultIntent);
+            finish();
         }
     }
+
 
     private void capturePhoto() {
         isDetecting = false;
@@ -214,7 +239,7 @@ public class FaceDetectionPage extends AppCompatActivity {
     }
 
     private void showCapturedImageView() {
-        retryButton.setVisibility(View.VISIBLE);
+//        retryButton.setVisibility(View.VISIBLE);
         capturedImageView.setVisibility(View.VISIBLE);
         capturePhotoButton.setVisibility(View.GONE);
         switchCameraButton.setVisibility(View.GONE);
@@ -252,7 +277,7 @@ public class FaceDetectionPage extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void updateUI() {
-
+    private void showRetry() {
+        retryButton.setVisibility(View.VISIBLE);
     }
 }

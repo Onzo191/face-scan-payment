@@ -1,5 +1,6 @@
 package com.ec337.facescanpayment.features.auth.presentation;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import androidx.core.content.ContextCompat;
 
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.face_detection.OrientationDetect;
+import com.ec337.facescanpayment.core.notify.NotifyPage;
 import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.core.utils.UriHelper;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
@@ -97,6 +99,10 @@ public class FaceRegisterPage extends AppCompatActivity {
 
         Toast.makeText(this, "Thêm khuôn mặt vào cơ sở dữ liệu thành công!", Toast.LENGTH_SHORT).show();
         validBitmaps.clear();
+        Intent notifyIntent = new Intent(this, NotifyPage.class);
+        notifyIntent.putExtra("text", "Đăng ký thành công");
+        notifyIntent.putExtra("imageSrc", R.drawable.logo_face_register_completed);
+        startActivity(notifyIntent);
     }
 
     private final List<OrientationDetect.TargetOrientation> requiredOrientations = List.of(

@@ -45,6 +45,17 @@
     <dimen name="_18dp">18dp</dimen>
     <dimen name="radio_gap">16dp</dimen>
     <dimen name="_4dp">4dp</dimen>
+    <dimen name="_8dp">8dp</dimen>
+    <dimen name="_60dp">60dp</dimen>
+    <dimen name="main_image_size">52dp</dimen>
+    <dimen name="_32dp">32dp</dimen>
+    <dimen name="_48dp">48dp</dimen>
+    <dimen name="_42dp">42dp</dimen>
+    <dimen name="_36dp">36dp</dimen>
+    <dimen name="_52dp">52dp</dimen>
+    <dimen name="_40dp">40dp</dimen>
+    <dimen name="_120dp">120dp</dimen>
+    <dimen name="_80dp">80dp</dimen>
     <!--  END:ratio  -->
 
 </resources>

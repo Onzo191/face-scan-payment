@@ -2,6 +2,6 @@
 <android.widget.ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/image_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="160dp"
     android:layout_margin="4dp"
-    android:scaleType="centerCrop" />
+    android:scaleType="fitCenter" />

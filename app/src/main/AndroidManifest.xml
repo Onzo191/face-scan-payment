@@ -26,13 +26,16 @@
         android:theme="@style/Theme.FaceScanPayment"
         tools:targetApi="31">
         <activity
-            android:name=".features.cart.CartPage"
+            android:name=".core.notify.NotifyPage"
             android:exported="false" />
         <activity
-            android:name=".features.store.StorePage"
+            android:name=".features.cart.presentation.CartPage"
             android:exported="false" />
         <activity
-            android:name=".features.checkout.CheckoutPage"
+            android:name=".features.store.presentation.StorePage"
+            android:exported="false" />
+        <activity
+            android:name=".features.cart.presentation.CheckoutPage"
             android:exported="false" />
         <activity
             android:name=".features.auth.presentation.FaceDetectionPage"
