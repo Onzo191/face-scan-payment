@@ -25,9 +25,7 @@ public class OrientationDetect {
     public OrientationDetect(Context context) {
         FaceDetector.FaceDetectorOptions options = FaceDetector.FaceDetectorOptions.builder()
                 .setBaseOptions(BaseOptions.builder().setModelAssetPath("blaze_face_short_range.tflite").build())
-                .setMinSuppressionThreshold(0.3f)
                 .setRunningMode(RunningMode.IMAGE)
-                .setMinDetectionConfidence(0.5f)
                 .build();
 
         try {
@@ -37,9 +35,25 @@ public class OrientationDetect {
         }
     }
 
+    public boolean detectFace(Bitmap bitmap) {
+        if (bitmap == null) {
+            Log.e(TAG, "Bitmap is null");
+            return false;
+        }
+
+        try {
+            MPImage mpImage = new BitmapImageBuilder(bitmap).build();
+            FaceDetectorResult faceDetectorResult = faceDetector.detect(mpImage);
+            List<Detection> results = faceDetectorResult.detections();
+            return !results.isEmpty(); // Return true if a face is detected
+        } catch (Exception e) {
+            Log.e(TAG, "Error detecting face", e);
+            return false;
+        }
+    }
 
     public enum TargetOrientation {
-        FRONT, LEFT, RIGHT, UP, DOWN
+        FRONT, LEFT, RIGHT
     }
 
     public boolean isTargetOrientation(OrientationResult result, TargetOrientation target, float dynamicThreshold) {
@@ -56,97 +70,7 @@ public class OrientationDetect {
         }
     }
 
-    public OrientationResult detectOrientation(Bitmap bitmap) {
-        if (bitmap == null) {
-            Log.e(TAG, "Bitmap is null");
-            return new OrientationResult();
-        }
 
-        MPImage mpImage = new BitmapImageBuilder(bitmap).build();
-        FaceDetectorResult faceDetectorResult = faceDetector.detect(mpImage);
-        List<Detection> results = faceDetectorResult.detections();
-
-        if (results.isEmpty() || !results.get(0).keypoints().isPresent()) {
-            Log.d(TAG, "No face detected or no keypoints found.");
-            return new OrientationResult();
-        }
-
-        List<NormalizedKeypoint> keypoints = results.get(0).keypoints().get();
-
-        return calculateFaceOrientation(keypoints);
-    }
-
-    private OrientationResult calculateFaceOrientation(List<NormalizedKeypoint> landmarks) {
-
-        OrientationResult orientation = new OrientationResult();
-        if (landmarks.size() < 6) { // Number of landmarks depends on the model
-            Log.e(TAG, "Not enough landmarks detected for orientation calculation.");
-            return orientation;
-        }
-
-        int leftEyeOuterIndex = 3;    // Example index - VERIFY!
-        int rightEyeOuterIndex = 3; // Example index - VERIFY!
-        int noseTipIndex = 0;       // Example index - VERIFY!
-
-        NormalizedKeypoint leftEyeOuter = landmarks.get(leftEyeOuterIndex);
-        NormalizedKeypoint rightEyeOuter = landmarks.get(rightEyeOuterIndex);
-        NormalizedKeypoint noseTip = landmarks.get(noseTipIndex);
-
-
-        float eyeDistance = rightEyeOuter.x() - leftEyeOuter.x();
-        float dynamicHorizontalThreshold = eyeDistance * 0.2f; // Example: 20% of eye distance
-
-
-        float horizontalAngle = calculateHorizontalAngle(noseTip, leftEyeOuter, rightEyeOuter);
-
-        orientation.setHorizontalAngle(horizontalAngle);
-
-        orientation.setLeftTurned(horizontalAngle < -dynamicHorizontalThreshold);
-        orientation.setRightTurned(horizontalAngle > dynamicHorizontalThreshold);
-        orientation.setFrontFacing(Math.abs(horizontalAngle) <= dynamicHorizontalThreshold * 0.5f);
-
-
-        Log.d(TAG, "Horizontal Angle: " + horizontalAngle + ", Threshold: " + dynamicHorizontalThreshold);
-        Log.d(TAG, "Orientation: Front=" + orientation.isFrontFacing() +
-                ", Left=" + orientation.isLeftTurned() +
-                ", Right=" + orientation.isRightTurned());
-
-        return orientation;
-    }
-
-    private float calculateHorizontalAngle(
-            NormalizedKeypoint noseTip,
-            NormalizedKeypoint leftEyeOuter,
-            NormalizedKeypoint rightEyeOuter
-    ) {
-        float eyeDistance = rightEyeOuter.x() - leftEyeOuter.x();
-        float midlineX = (leftEyeOuter.x() + rightEyeOuter.x()) / 2;
-        float noseMidlineDeviation = noseTip.x() - midlineX;
-
-        // Use atan2 for correct quadrant handling
-        float angle = (float) Math.toDegrees(Math.atan2(noseMidlineDeviation, eyeDistance / 2));
-        return angle;
-    }
-
-    private float calculateVerticalAngle(
-            NormalizedKeypoint noseTip,
-            NormalizedKeypoint leftCheek,
-            NormalizedKeypoint rightCheek
-    ) {
-        float midlineY = (leftCheek.y() + rightCheek.y()) / 2;
-        float angleDiff = noseTip.y() - midlineY;
-
-        return (float) Math.toDegrees(Math.atan2(angleDiff, 1));
-    }
-
-    public float getOrientationConfidence(OrientationResult result) {
-        int orientationCount = 0;
-        if (result.isLeftTurned()) orientationCount++;
-        if (result.isRightTurned()) orientationCount++;
-        if (result.isFrontFacing()) orientationCount++;
-
-        return (float) orientationCount / 5.0f;
-    }
 
     public static class OrientationResult {
         private boolean leftTurned = false;

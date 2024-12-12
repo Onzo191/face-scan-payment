@@ -8,22 +8,6 @@
     android:padding="16dp"
     tools:context=".features.auth.presentation.FaceRegisterPage">
 
-    <Button
-        android:id="@+id/btn_start_capture"
-        app:layout_constraintTop_toBottomOf="@+id/tv_selected_images"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bắt đầu chụp ảnh" />
-
-    <TextView
-        android:id="@+id/tv_selected_images"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_add_to_database" />
-
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         app:layout_constraintTop_toBottomOf="@+id/btn_start_capture"
@@ -31,14 +15,14 @@
         android:layout_height="0dp" />
 
     <Button
-        android:id="@+id/btn_add_to_database"
+        android:id="@+id/btn_start_capture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btn_add_to_database"
+        android:text="Bắt đầu đăng ký"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_choose_photos" />
+     />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

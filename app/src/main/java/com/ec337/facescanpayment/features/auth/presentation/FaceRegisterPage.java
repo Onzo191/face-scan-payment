@@ -4,6 +4,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,11 +44,9 @@ public class FaceRegisterPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
 
     private final List<Bitmap> validBitmaps = new ArrayList<>();
-    private ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaLauncher;
     FaceRepository faceRepository;
 
-    private EditText etPersonName;
-    private Button btnChoosePhoto, btnAddToDatabase , btnStartCapture;
+    private Button btnStartCapture;
 
     private ImageVectorUseCase imageVectorUseCase;
 
@@ -58,6 +58,8 @@ public class FaceRegisterPage extends AppCompatActivity {
     private PreviewView previewView;
     private ImageCapture imageCapture;
     private ExecutorService cameraExecutor;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable captureRunnable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         faceRepository = new FaceRepository(getApplication());
@@ -74,23 +76,16 @@ public class FaceRegisterPage extends AppCompatActivity {
     }
 
     private void initViews() {
-        btnChoosePhoto = findViewById(R.id.btn_choose_photos);
-        btnAddToDatabase = findViewById(R.id.btn_add_to_database);
-
         btnStartCapture = findViewById(R.id.btn_start_capture);
         btnStartCapture.setOnClickListener(v -> checkCameraPermission());
-
-        btnAddToDatabase.setOnClickListener(v -> handleAddToDatabase());
     }
 
     private void handleAddToDatabase() {
-        String userName = etPersonName.getText().toString().trim();
 
-        if (userName.isEmpty() || validBitmaps.isEmpty()) {
+        if (validBitmaps.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập tên và chụp ít nhất một ảnh khuôn mặt!", Toast.LENGTH_SHORT).show();
             return;
         }
-
 
         jwtToken = new JwtToken(this);
         String userId = jwtToken.getUserId();
@@ -98,7 +93,7 @@ public class FaceRegisterPage extends AppCompatActivity {
 
         List<Uri> imageUriList = UriHelper.saveBitmapListAsUris(this, validBitmaps);
 
-        imageVectorUseCase.processAndAddImage(this, userId, userName, userEmail, imageUriList);
+        imageVectorUseCase.processAndAddImage(this, userId, "hi", userEmail, imageUriList);
 
         Toast.makeText(this, "Thêm khuôn mặt vào cơ sở dữ liệu thành công!", Toast.LENGTH_SHORT).show();
         validBitmaps.clear();
@@ -107,9 +102,7 @@ public class FaceRegisterPage extends AppCompatActivity {
     private final List<OrientationDetect.TargetOrientation> requiredOrientations = List.of(
             OrientationDetect.TargetOrientation.FRONT,
             OrientationDetect.TargetOrientation.LEFT,
-            OrientationDetect.TargetOrientation.RIGHT,
-            OrientationDetect.TargetOrientation.UP,
-            OrientationDetect.TargetOrientation.DOWN
+            OrientationDetect.TargetOrientation.RIGHT
     );
 
     private void initCameraLauncher() {
@@ -127,35 +120,51 @@ public class FaceRegisterPage extends AppCompatActivity {
         OrientationDetect.TargetOrientation target = requiredOrientations.get(currentOrientationIndex);
         Toast.makeText(this, "Vui lòng nhìn theo hướng: " + target.name(), Toast.LENGTH_LONG).show();
 
-        imageCapture.takePicture(
-                new ImageCapture.OutputFileOptions.Builder(
-                        new File(UriHelper.createImageDirectory(this), UriHelper.createImageFileName(currentOrientationIndex))
-                ).build(),
-                ContextCompat.getMainExecutor(this),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Uri savedUri = outputFileResults.getSavedUri();
-                        if (savedUri != null) {
-                            Bitmap bitmap = UriHelper.getBitmapFromUri(FaceRegisterPage.this, savedUri);
-                            if (bitmap != null && isValidFaceOrientation(bitmap, target)) {
-                                validBitmaps.add(bitmap);
-                                currentOrientationIndex++;
-                                Toast.makeText(FaceRegisterPage.this, "Ảnh hợp lệ đã được thêm! (" + validBitmaps.size() + ")", Toast.LENGTH_SHORT).show();
-                                startCaptureLoop();
-                            } else {
-                                Toast.makeText(FaceRegisterPage.this, "Ảnh không hợp lệ cho hướng " + target.name() + ", vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+        // Delay capture to allow user to adjust
+        captureRunnable = () -> {
+            imageCapture.takePicture(
+                    new ImageCapture.OutputFileOptions.Builder(
+                            new File(UriHelper.createImageDirectory(this), UriHelper.createImageFileName(currentOrientationIndex))
+                    ).build(),
+                    ContextCompat.getMainExecutor(this),
+                    new ImageCapture.OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                            Uri savedUri = outputFileResults.getSavedUri();
+                            if (savedUri != null) {
+                                Bitmap bitmap = UriHelper.getBitmapFromUri(FaceRegisterPage.this, savedUri);
+                                if (bitmap != null && orientationDetect.detectFace(bitmap)) {
+                                    validBitmaps.add(bitmap);
+                                    currentOrientationIndex++;
+                                    Toast.makeText(FaceRegisterPage.this, "Ảnh hợp lệ đã được thêm! (" + validBitmaps.size() + ")", Toast.LENGTH_SHORT).show();
+
+                                    if (currentOrientationIndex < requiredOrientations.size()) {
+                                        handler.postDelayed(FaceRegisterPage.this::startCaptureLoop, 2000);
+                                    } else {
+                                        handleAddToDatabase();
+                                    }
+                                } else {
+                                    Toast.makeText(FaceRegisterPage.this, "Ảnh không hợp lệ cho hướng " + target.name() + ", vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
-                    }
 
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Log.e(TAG, "Error capturing image: " + exception.getMessage(), exception);
-                        Toast.makeText(FaceRegisterPage.this, "Lỗi chụp ảnh: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            Log.e(TAG, "Error capturing image: " + exception.getMessage(), exception);
+                            Toast.makeText(FaceRegisterPage.this, "Lỗi chụp ảnh: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-        );
+            );
+        };
+
+        handler.postDelayed(captureRunnable, 2000); // 2-second delay
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(captureRunnable);
     }
 
     private void checkCameraPermission() {
@@ -173,17 +182,6 @@ public class FaceRegisterPage extends AppCompatActivity {
             startCaptureLoop();
         } else {
             Toast.makeText(this, "Quyền camera bị từ chối!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private boolean isValidFaceOrientation(Bitmap bitmap, OrientationDetect.TargetOrientation target) {
-        try {
-            OrientationDetect.OrientationResult orientation = orientationDetect.detectOrientation(bitmap);
-            Log.d(TAG, "Orientation: " + orientationDetect.isTargetOrientation(orientation, target, 10f));
-            return orientationDetect.isTargetOrientation(orientation, target, 10f);
-        } catch (Exception e) {
-            Log.e(TAG, "Lỗi kiểm tra hướng khuôn mặt", e);
-            return false;
         }
     }
 

@@ -50,14 +50,12 @@ public class ImageVectorUseCase {
             if (faceDetectionResult.isRight()) {
                 Bitmap croppedFace = faceDetectionResult.getRight();
 
-                if(isValidFaceOrientation(croppedFace)) {
-                    float[] embedding = faceNet.getFaceEmbedding(croppedFace);
-                    List<Float> converted = FaceModel.convertToList(embedding);
+                float[] embedding = faceNet.getFaceEmbedding(croppedFace);
+                List<Float> converted = FaceModel.convertToList(embedding);
 
-                    String key = "image" + (validImageCount + 1);
-                    validEmbeddings.put(key, converted);
-                    validImageCount++;
-                }
+                String key = "image" + (validImageCount + 1);
+                validEmbeddings.put(key, converted);
+                validImageCount++;
             }
 
             if (validImageCount >= MAX_VALID_IMAGES) {
@@ -68,7 +66,7 @@ public class ImageVectorUseCase {
         if (!validEmbeddings.isEmpty()) {
             FaceModel faceModel = new FaceModel(userId, userName, userEmail, validEmbeddings);
             faceModel.logFaceEmbeddings();
-            authRepository.registerFace(ctx, faceModel);
+//            authRepository.registerFace(ctx, faceModel);
         } else {
 
             Toast.makeText(ctx, "Không tìm thấy hình ảnh khuôn mặt phù hợp", Toast.LENGTH_SHORT).show();
@@ -84,29 +82,5 @@ public class ImageVectorUseCase {
             }
         }
         return new float[0];
-    }
-
-    private boolean isValidFaceOrientation(Bitmap faceBitmap) {
-        try {
-            OrientationDetect.OrientationResult orientation =
-                    orientationDetect.detectOrientation(faceBitmap);
-
-            float confidence = orientationDetect.getOrientationConfidence(orientation);
-
-            // Validate face orientation with confidence check
-            boolean isValid = orientation.isFrontFacing() ||
-                    (orientation.isLeftTurned() ||
-                            orientation.isRightTurned() &&
-                            confidence >= ORIENTATION_CONFIDENCE_THRESHOLD);
-
-            if (!isValid) {
-                Log.w(TAG, "Invalid face orientation. Confidence: " + confidence);
-            }
-
-            return isValid;
-        } catch (Exception e) {
-            Log.e(TAG, "Error checking face orientation", e);
-            return false;
-        }
     }
 }
