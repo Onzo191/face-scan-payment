@@ -63,11 +63,19 @@ public class MainActivity extends AppCompatActivity {
     private void handleAuthentication() {
         String token = jwtToken.getToken();
         String userId = jwtToken.getUserId();
-
+        String label = jwtToken.getUserLabel();
+        Log.d("MainActivity", "handleAuthentication: " + label);
         if (token != null && userId != null){
             // Set email from JWT token
             authRepository.getCurrentUser(this, userId);
             txtEmail.setText(jwtToken.getUserEmail());
+
+            if (jwtToken.getUserLabel() != null) {
+                btnRegisterFace.setVisibility(View.GONE);
+            } else {
+                btnRegisterFace.setVisibility(View.VISIBLE);
+            }
+
         } else {
             // Redirect to login if no token
             NavigationUtils.navigateTo(this, LoginPage.class, true);

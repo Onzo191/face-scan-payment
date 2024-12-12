@@ -66,7 +66,8 @@ public class ImageVectorUseCase {
         if (!validEmbeddings.isEmpty()) {
             FaceModel faceModel = new FaceModel(userId, userName, userEmail, validEmbeddings);
             faceModel.logFaceEmbeddings();
-//            authRepository.registerFace(ctx, faceModel);
+            authRepository.registerFace(ctx, faceModel);
+            authRepository.getCurrentUser(ctx,userId);
         } else {
 
             Toast.makeText(ctx, "Không tìm thấy hình ảnh khuôn mặt phù hợp", Toast.LENGTH_SHORT).show();

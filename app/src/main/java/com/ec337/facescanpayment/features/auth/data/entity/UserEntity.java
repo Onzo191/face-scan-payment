@@ -7,6 +7,7 @@ public class UserEntity {
     private String gender;
     private String email;
     private String phone;
+    private String label;
 
     public UserEntity() {
     }
@@ -17,6 +18,7 @@ public class UserEntity {
         this.gender = gender;
         this.email = email;
         this.phone = phone;
+        this.label = null;
     }
 
     public String getFirstName() {
@@ -65,5 +67,13 @@ public class UserEntity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

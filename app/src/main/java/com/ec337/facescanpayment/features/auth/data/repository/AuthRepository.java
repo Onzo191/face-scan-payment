@@ -49,6 +49,8 @@ public class AuthRepository {
                             token = response.body().getToken();
                             String id = response.body().getUser().getId();
                             String email = response.body().getUser().getEmail();
+                            String label = response.body().getUser().getLabel();
+                            jwtToken.saveUserLabel(label);
                             jwtToken.saveToken(token);
                             jwtToken.saveUserId(id);
                             jwtToken.saveUserEmail(email);
@@ -97,8 +99,18 @@ public class AuthRepository {
                     @Override
                     public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            UserResponse user = response.body();
-                            Log.d("AuthRepoitory", "User: " + user.toString());
+                            UserResponse userResponse = response.body();
+
+                            if (userResponse.getUser() != null) {
+                                UserEntity user = userResponse.getUser();
+                                if (user.getLabel() != null) {
+                                    jwtToken.saveUserLabel(user.getLabel());
+                                } else {
+                                    Log.w("AuthRepository", "User label is null"); // Log a warning or handle null label as needed
+                                }
+                            } else {
+                                Log.e("AuthRepository", "User object is null"); // Log an error if the user object is null
+                            }
                         }
                     }
 
@@ -115,21 +127,21 @@ public class AuthRepository {
             token = jwtToken.getToken();
         }
         Log.d("AuthRepoitory", "Face registered successfully");
-//        AuthApiClient.getApiService(token)
-//                .registerFace(faceModel)
-//                .enqueue(new Callback<RegisterFaceResponse>() {
-//                    @Override
-//                    public void onResponse(Call<RegisterFaceResponse> call, Response<RegisterFaceResponse> response) {
-//                        if (response.isSuccessful() && response.body() != null) {
-//                            Log.d("AuthRepoitory", "Face registered successfully");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<RegisterFaceResponse> call, Throwable t) {
-//
-//                    }
-//                });
+        AuthApiClient.getApiService(token)
+                .registerFace(faceModel)
+                .enqueue(new Callback<RegisterFaceResponse>() {
+                    @Override
+                    public void onResponse(Call<RegisterFaceResponse> call, Response<RegisterFaceResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d("AuthRepoitory", "Face registered successfully");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<RegisterFaceResponse> call, Throwable t) {
+
+                    }
+                });
     }
 
     public void verifyFace(Context ctx, float[] embeddings,String userId, String userEmail,OnVerifyFaceListener listener) {
