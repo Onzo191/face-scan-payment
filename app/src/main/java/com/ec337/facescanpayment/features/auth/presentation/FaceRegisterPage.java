@@ -1,6 +1,5 @@
 package com.ec337.facescanpayment.features.auth.presentation;
 
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,22 +15,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.ec337.facescanpayment.R;
 import com.ec337.facescanpayment.core.face_detection.OrientationDetect;
 import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.core.utils.UriHelper;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
-import com.ec337.facescanpayment.features.auth.presentation.adapters.ImageAdapter;
 import com.ec337.facescanpayment.features.auth.usecases.ImageVectorUseCase;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -46,7 +41,7 @@ import java.util.concurrent.Executors;
 public class FaceRegisterPage extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
 
-    private final List<Bitmap> validBitmaps = new ArrayList<>(); // Lưu các ảnh hợp lệ
+    private final List<Bitmap> validBitmaps = new ArrayList<>();
     private ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaLauncher;
     FaceRepository faceRepository;
 
@@ -141,14 +136,13 @@ public class FaceRegisterPage extends AppCompatActivity {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                         Uri savedUri = outputFileResults.getSavedUri();
-
                         if (savedUri != null) {
                             Bitmap bitmap = UriHelper.getBitmapFromUri(FaceRegisterPage.this, savedUri);
                             if (bitmap != null && isValidFaceOrientation(bitmap, target)) {
                                 validBitmaps.add(bitmap);
                                 currentOrientationIndex++;
                                 Toast.makeText(FaceRegisterPage.this, "Ảnh hợp lệ đã được thêm! (" + validBitmaps.size() + ")", Toast.LENGTH_SHORT).show();
-                                startCaptureLoop(); // Call recursively for the next orientation
+                                startCaptureLoop();
                             } else {
                                 Toast.makeText(FaceRegisterPage.this, "Ảnh không hợp lệ cho hướng " + target.name() + ", vui lòng thử lại!", Toast.LENGTH_SHORT).show();
                             }
@@ -185,7 +179,8 @@ public class FaceRegisterPage extends AppCompatActivity {
     private boolean isValidFaceOrientation(Bitmap bitmap, OrientationDetect.TargetOrientation target) {
         try {
             OrientationDetect.OrientationResult orientation = orientationDetect.detectOrientation(bitmap);
-            return orientationDetect.isTargetOrientation(orientation, target);
+            Log.d(TAG, "Orientation: " + orientationDetect.isTargetOrientation(orientation, target, 10f));
+            return orientationDetect.isTargetOrientation(orientation, target, 10f);
         } catch (Exception e) {
             Log.e(TAG, "Lỗi kiểm tra hướng khuôn mặt", e);
             return false;

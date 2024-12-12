@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.exifinterface)
     testImplementation(libs.junit)
     implementation(libs.tasks.vision)
+//    implementation(libs.facemesh)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.retrofit)

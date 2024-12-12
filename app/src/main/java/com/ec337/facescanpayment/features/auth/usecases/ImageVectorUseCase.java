@@ -11,20 +11,14 @@ import com.ec337.facescanpayment.core.errors.Failure;
 import com.ec337.facescanpayment.core.face_detection.MediapipeFaceDetector;
 import com.ec337.facescanpayment.core.face_detection.OrientationDetect;
 import com.ec337.facescanpayment.core.utils.Either;
-import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.features.auth.data.model.FaceModel;
 import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
-import com.ec337.facescanpayment.features.auth.data.repository.api.AuthApiClient;
-import com.ec337.facescanpayment.features.auth.data.repository.api.types.RegisterFaceResponse;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ImageVectorUseCase {
     private static final String TAG = "ImageVectorUseCase";
@@ -76,7 +70,7 @@ public class ImageVectorUseCase {
             faceModel.logFaceEmbeddings();
             authRepository.registerFace(ctx, faceModel);
         } else {
-            // Thông báo không có hình ảnh hợp lệ
+
             Toast.makeText(ctx, "Không tìm thấy hình ảnh khuôn mặt phù hợp", Toast.LENGTH_SHORT).show();
         }
     }
@@ -102,10 +96,8 @@ public class ImageVectorUseCase {
             // Validate face orientation with confidence check
             boolean isValid = orientation.isFrontFacing() ||
                     (orientation.isLeftTurned() ||
-                            orientation.isRightTurned() ||
-                            orientation.isUpTurned() ||
-                            orientation.isDownTurned()) &&
-                            confidence >= ORIENTATION_CONFIDENCE_THRESHOLD;
+                            orientation.isRightTurned() &&
+                            confidence >= ORIENTATION_CONFIDENCE_THRESHOLD);
 
             if (!isValid) {
                 Log.w(TAG, "Invalid face orientation. Confidence: " + confidence);

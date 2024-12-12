@@ -2,14 +2,8 @@ package com.ec337.facescanpayment.core.face_detection;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.opengl.Matrix;
 import android.util.Log;
 
-import androidx.exifinterface.media.ExifInterface;
-
-import com.google.mediapipe.framework.MediaPipeException;
 import com.google.mediapipe.framework.image.BitmapImageBuilder;
 import com.google.mediapipe.framework.image.MPImage;
 import com.google.mediapipe.tasks.components.containers.NormalizedKeypoint;
@@ -19,17 +13,13 @@ import com.google.mediapipe.tasks.vision.facedetector.FaceDetector;
 import com.google.mediapipe.tasks.components.containers.Detection;
 import com.google.mediapipe.tasks.vision.facedetector.FaceDetectorResult;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 public class OrientationDetect {
     private static final String TAG = "OrientationDetect";
-    private static final float DEFAULT_HORIZONTAL_THRESHOLD = 15f;
-    private static final float DEFAULT_VERTICAL_THRESHOLD = 15f;;
+    private static final float DEFAULT_HORIZONTAL_THRESHOLD = 10f;
+    private static final float DEFAULT_VERTICAL_THRESHOLD = 10f;;
     private FaceDetector faceDetector;
 
     public OrientationDetect(Context context) {
@@ -52,35 +42,27 @@ public class OrientationDetect {
         FRONT, LEFT, RIGHT, UP, DOWN
     }
 
-    public boolean isTargetOrientation(OrientationResult result, TargetOrientation target) {
+    public boolean isTargetOrientation(OrientationResult result, TargetOrientation target, float dynamicThreshold) {
         switch (target) {
             case FRONT:
-                return result.isFrontFacing();
+                return Math.abs(result.getHorizontalAngle()) <= dynamicThreshold * 0.5f;
             case LEFT:
-                return result.isLeftTurned();
+                return result.getHorizontalAngle() < -dynamicThreshold;
             case RIGHT:
-                return result.isRightTurned();
-            case UP:
-                return result.isUpTurned();
-            case DOWN:
-                return result.isDownTurned();
+                return result.getHorizontalAngle() > dynamicThreshold;
+            // Handle UP/DOWN if needed
             default:
                 return false;
         }
     }
 
     public OrientationResult detectOrientation(Bitmap bitmap) {
-        return detectOrientation(bitmap, DEFAULT_HORIZONTAL_THRESHOLD, DEFAULT_VERTICAL_THRESHOLD);
-    }
-
-    public OrientationResult detectOrientation(Bitmap bitmap, float horizontalThreshold, float verticalThreshold) {
         if (bitmap == null) {
             Log.e(TAG, "Bitmap is null");
             return new OrientationResult();
         }
 
         MPImage mpImage = new BitmapImageBuilder(bitmap).build();
-
         FaceDetectorResult faceDetectorResult = faceDetector.detect(mpImage);
         List<Detection> results = faceDetectorResult.detections();
 
@@ -91,55 +73,59 @@ public class OrientationDetect {
 
         List<NormalizedKeypoint> keypoints = results.get(0).keypoints().get();
 
-        return calculateFaceOrientation(keypoints, bitmap.getWidth(), bitmap.getHeight(),
-                horizontalThreshold, verticalThreshold);
+        return calculateFaceOrientation(keypoints);
     }
 
-    private OrientationResult calculateFaceOrientation(
-            List<NormalizedKeypoint> landmarks,
-            int width,
-            int height,
-            float horizontalThreshold,
-            float verticalThreshold
-    ) {
-        OrientationResult orientation = new OrientationResult();
+    private OrientationResult calculateFaceOrientation(List<NormalizedKeypoint> landmarks) {
 
-        if (landmarks.size() < 478) {
+        OrientationResult orientation = new OrientationResult();
+        if (landmarks.size() < 6) { // Number of landmarks depends on the model
             Log.e(TAG, "Not enough landmarks detected for orientation calculation.");
             return orientation;
         }
 
-        NormalizedKeypoint noseTip = landmarks.get(1);
-        NormalizedKeypoint leftCheek = landmarks.get(93);
-        NormalizedKeypoint rightCheek = landmarks.get(323);
+        int leftEyeOuterIndex = 3;    // Example index - VERIFY!
+        int rightEyeOuterIndex = 3; // Example index - VERIFY!
+        int noseTipIndex = 0;       // Example index - VERIFY!
 
-        float horizontalAngle = calculateHorizontalAngle(noseTip, leftCheek, rightCheek);
-        float verticalAngle = calculateVerticalAngle(noseTip, leftCheek, rightCheek);
+        NormalizedKeypoint leftEyeOuter = landmarks.get(leftEyeOuterIndex);
+        NormalizedKeypoint rightEyeOuter = landmarks.get(rightEyeOuterIndex);
+        NormalizedKeypoint noseTip = landmarks.get(noseTipIndex);
 
-        orientation.setLeftTurned(horizontalAngle < -horizontalThreshold);
-        orientation.setRightTurned(horizontalAngle > horizontalThreshold);
-        orientation.setUpTurned(verticalAngle < -verticalThreshold);
-        orientation.setDownTurned(verticalAngle > verticalThreshold);
-        orientation.setFrontFacing(
-                Math.abs(horizontalAngle) <= horizontalThreshold &&
-                        Math.abs(verticalAngle) <= verticalThreshold
-        );
+
+        float eyeDistance = rightEyeOuter.x() - leftEyeOuter.x();
+        float dynamicHorizontalThreshold = eyeDistance * 0.2f; // Example: 20% of eye distance
+
+
+        float horizontalAngle = calculateHorizontalAngle(noseTip, leftEyeOuter, rightEyeOuter);
 
         orientation.setHorizontalAngle(horizontalAngle);
-        orientation.setVerticalAngle(verticalAngle);
+
+        orientation.setLeftTurned(horizontalAngle < -dynamicHorizontalThreshold);
+        orientation.setRightTurned(horizontalAngle > dynamicHorizontalThreshold);
+        orientation.setFrontFacing(Math.abs(horizontalAngle) <= dynamicHorizontalThreshold * 0.5f);
+
+
+        Log.d(TAG, "Horizontal Angle: " + horizontalAngle + ", Threshold: " + dynamicHorizontalThreshold);
+        Log.d(TAG, "Orientation: Front=" + orientation.isFrontFacing() +
+                ", Left=" + orientation.isLeftTurned() +
+                ", Right=" + orientation.isRightTurned());
 
         return orientation;
     }
 
     private float calculateHorizontalAngle(
             NormalizedKeypoint noseTip,
-            NormalizedKeypoint leftCheek,
-            NormalizedKeypoint rightCheek
+            NormalizedKeypoint leftEyeOuter,
+            NormalizedKeypoint rightEyeOuter
     ) {
-        float midlineX = (leftCheek.x() + rightCheek.x()) / 2;
-        float angleDiff = noseTip.x() - midlineX;
+        float eyeDistance = rightEyeOuter.x() - leftEyeOuter.x();
+        float midlineX = (leftEyeOuter.x() + rightEyeOuter.x()) / 2;
+        float noseMidlineDeviation = noseTip.x() - midlineX;
 
-        return (float) Math.toDegrees(Math.atan2(angleDiff, 1));
+        // Use atan2 for correct quadrant handling
+        float angle = (float) Math.toDegrees(Math.atan2(noseMidlineDeviation, eyeDistance / 2));
+        return angle;
     }
 
     private float calculateVerticalAngle(
@@ -157,8 +143,6 @@ public class OrientationDetect {
         int orientationCount = 0;
         if (result.isLeftTurned()) orientationCount++;
         if (result.isRightTurned()) orientationCount++;
-        if (result.isUpTurned()) orientationCount++;
-        if (result.isDownTurned()) orientationCount++;
         if (result.isFrontFacing()) orientationCount++;
 
         return (float) orientationCount / 5.0f;
@@ -167,8 +151,6 @@ public class OrientationDetect {
     public static class OrientationResult {
         private boolean leftTurned = false;
         private boolean rightTurned = false;
-        private boolean upTurned = false;
-        private boolean downTurned = false;
         private boolean frontFacing = false;
         private float horizontalAngle = 0f;
         private float verticalAngle = 0f;
@@ -179,12 +161,6 @@ public class OrientationDetect {
 
         public boolean isRightTurned() { return rightTurned; }
         public void setRightTurned(boolean rightTurned) { this.rightTurned = rightTurned; }
-
-        public boolean isUpTurned() { return upTurned; }
-        public void setUpTurned(boolean upTurned) { this.upTurned = upTurned; }
-
-        public boolean isDownTurned() { return downTurned; }
-        public void setDownTurned(boolean downTurned) { this.downTurned = downTurned; }
 
         public boolean isFrontFacing() { return frontFacing; }
         public void setFrontFacing(boolean frontFacing) { this.frontFacing = frontFacing; }
