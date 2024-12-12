@@ -4,31 +4,31 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ec337.facescanpayment.core.embeddings.FaceNet;
 import com.ec337.facescanpayment.core.errors.Failure;
 import com.ec337.facescanpayment.core.face_detection.MediapipeFaceDetector;
+import com.ec337.facescanpayment.core.face_detection.OrientationDetect;
 import com.ec337.facescanpayment.core.utils.Either;
-import com.ec337.facescanpayment.core.utils.JwtToken;
 import com.ec337.facescanpayment.features.auth.data.model.FaceModel;
 import com.ec337.facescanpayment.features.auth.data.repository.AuthRepository;
 import com.ec337.facescanpayment.features.auth.data.repository.FaceRepository;
-import com.ec337.facescanpayment.features.auth.data.repository.api.AuthApiClient;
-import com.ec337.facescanpayment.features.auth.data.repository.api.types.RegisterFaceResponse;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ImageVectorUseCase {
+    private static final String TAG = "ImageVectorUseCase";
+    private static final int MAX_VALID_IMAGES = 5;
+    private static final float ORIENTATION_CONFIDENCE_THRESHOLD = 0.6f;
     private final MediapipeFaceDetector faceDetector;
     private final FaceNet faceNet;
     private final FaceRepository faceRepository;
     private AuthRepository authRepository = new AuthRepository();
+    private OrientationDetect orientationDetect;
     public ImageVectorUseCase(
             Context context,
             FaceRepository faceRepository
@@ -36,29 +36,42 @@ public class ImageVectorUseCase {
         this.faceDetector = new MediapipeFaceDetector(context);
         this.faceNet = new FaceNet(context, true, true);
         this.faceRepository = faceRepository;
+        this.orientationDetect = new OrientationDetect(context);
     }
 
     // Add the user's embedding to the firestore database
     public void processAndAddImage(Context ctx, String userId, String userName, String userEmail, List<Uri> imageUriList) {
-        Map<String, List<Float>> allEmbeddings = new HashMap<>();
+        Map<String, List<Float>> validEmbeddings  = new HashMap<>();
+        int validImageCount = 0;
 
-        int index = 1;
         for (Uri imageUri : imageUriList) {
             Either<Failure, Bitmap> faceDetectionResult = faceDetector.getCroppedFace(imageUri);
 
             if (faceDetectionResult.isRight()) {
-                float[] embedding = faceNet.getFaceEmbedding(faceDetectionResult.getRight());
+                Bitmap croppedFace = faceDetectionResult.getRight();
+
+                float[] embedding = faceNet.getFaceEmbedding(croppedFace);
                 List<Float> converted = FaceModel.convertToList(embedding);
 
-                String key = "image" + index++;
-                allEmbeddings.put(key, converted);
+                String key = "image" + (validImageCount + 1);
+                validEmbeddings.put(key, converted);
+                validImageCount++;
+            }
+
+            if (validImageCount >= MAX_VALID_IMAGES) {
+                break;
             }
         }
 
-        FaceModel faceModel = new FaceModel(userId, userName, userEmail, allEmbeddings);
-        faceModel.logFaceEmbeddings();
+        if (!validEmbeddings.isEmpty()) {
+            FaceModel faceModel = new FaceModel(userId, userName, userEmail, validEmbeddings);
+            faceModel.logFaceEmbeddings();
+            authRepository.registerFace(ctx, faceModel);
+            authRepository.getCurrentUser(ctx,userId);
+        } else {
 
-        authRepository.registerFace(ctx,faceModel);
+            Toast.makeText(ctx, "Không tìm thấy hình ảnh khuôn mặt phù hợp", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public float[] processImage(Bitmap bitmap) {

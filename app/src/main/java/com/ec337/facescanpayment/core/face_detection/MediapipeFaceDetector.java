@@ -115,6 +115,7 @@ public class MediapipeFaceDetector {
         }
     }
 
+
     public List<Pair<Bitmap, Rect>> getAllCroppedFaces(Bitmap frameBitmap) {
         List<Pair<Bitmap, Rect>> croppedFaces  = new ArrayList<>();
         List<Detection> faces = faceDetector.detect(new BitmapImageBuilder(frameBitmap).build()).detections();

@@ -44,9 +44,19 @@ public class JwtToken {
         return sharedPreferences.getString("email", null);
     }
 
+    public void saveUserLabel(String label) {
+        editor.putString("label", label);
+        editor.apply();
+    }
+
+    public String getUserLabel() {
+        return sharedPreferences.getString("label", null);
+    }
+
     public void deleteUser() {
         editor.remove("userId");
         editor.remove("email");
+        editor.remove("label");
         editor.apply();
     }
 }
