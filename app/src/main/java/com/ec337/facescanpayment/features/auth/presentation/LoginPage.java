@@ -77,6 +77,7 @@ public class LoginPage extends AppCompatActivity {
         if (!email.isEmpty() && !password.isEmpty()) {
             uiManager.showLoading();
             authRepository.login(this ,email, password);
+            authManager.storeCredentials(email, password);
         } else {
             Toast.makeText(LoginPage.this, "Please fill in both fields", Toast.LENGTH_SHORT).show();
         }
@@ -85,18 +86,8 @@ public class LoginPage extends AppCompatActivity {
     private void biometricLogin() {
         String[] credentials = authManager.retrieveCredentials();
         if (credentials != null) {
-            authManager.signInWithEmailPassword(credentials[0], credentials[1], new AuthenticationManager.OnAuthCompleteListener() {
-                @Override
-                public void onSuccess(FirebaseUser user) {
-                    Toast.makeText(LoginPage.this, "Biometric login succeeded!", Toast.LENGTH_SHORT).show();
-                    NavigationUtils.navigateTo(LoginPage.this, MainActivity.class);
-                }
+            authRepository.login(this ,credentials[0], credentials[1]);
 
-                @Override
-                public void onFailure(Exception e) {
-                    Toast.makeText(LoginPage.this, "Biometric login failed", Toast.LENGTH_SHORT).show();
-                }
-            });
         } else {
             Toast.makeText(this, "No saved credentials found", Toast.LENGTH_SHORT).show();
         }
